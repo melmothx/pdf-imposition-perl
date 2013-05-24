@@ -2,7 +2,11 @@ package PDF::Imposition;
 
 use 5.010001;
 use strict;
-use warnings FATAL => 'all';
+use warnings;
+
+use File::Basename qw/fileparse/;
+use File::Spec;
+use CAM::PDF;
 
 =head1 NAME
 
@@ -28,26 +32,111 @@ Perhaps a little code snippet.
     my $foo = PDF::Imposition->new();
     ...
 
-=head1 EXPORT
-
-A list of functions that can be exported.  You can delete this section
-if you don't export anything, such as for a purely object-oriented module.
-
 =head1 SUBROUTINES/METHODS
 
-=head2 function1
+=head2 new(file => "file.pdf", suffix => "-imp", cover => 0, doublecover => 1)
+
+Costructor. Options should be passed as list.
 
 =cut
 
-sub function1 {
+sub new {
+    my ($class, %options) = @_;
+    foreach my $k (keys %options) {
+        # clean the options from internals
+        delete $options{$k} if index($k, "_") == 0;
+    }
+    my $self = \%options;
+    bless $self, $class;
 }
 
-=head2 function2
+=head2 Accessors
+
+All the following accessors accept an argument, which sets the value.
+
+=head3 doublecover
+
+If the first two pages and the last two pages should be embedded in
+the cover. As cover I refer to the pages which should *always* be the
+first and the last, even if the total number of page is not a multiple
+of four.
+
+=head3 cover
+
+Same as above, but reserve only one page, and keep page 2 and page
+last-1 blank.
 
 =cut
 
-sub function2 {
+sub cover {
+    my $self = shift;
+    if (@_ == 1) {
+        $self->{cover} = shift;
+    }
+    return $self->{cover};
 }
+
+sub doublecover {
+    my $self = shift;
+    if (@_ == 1) {
+        $self->{doublecover} = shift;
+    }
+    return $self->{doublecover};
+}
+
+=head3 file
+
+Unsurprisingly, the input file, which should exist.
+
+=cut
+
+sub file {
+    my $self = shift;
+    if (@_ == 1) {
+        $self->{file} = shift;
+    }
+    my $f = $self->{file} || "";
+    die "$f is not a file" unless -f $f;
+    return $f;
+}
+
+=head3 outfile
+
+The destination file of the imposition. You may prefer to use the
+suffix method below, which takes care of the filename.
+
+=head3 suffix
+
+The suffix of the file. By default, '-imp', so test.pdf imposed will
+be saved as 'test-imp.pdf'. If test-imp.pdf already exists, it will be
+replaced merciless.
+
+=cut
+
+sub outfile {
+    my $self = shift;
+    if (@_ == 1) {
+        $self->{outfile} = shift;
+    }
+    my $f = $self->{outfile};
+    unless ($f) {
+        my $choosen_suffix = $self->suffix;
+        my ($name, $path, $suffix) = fileparse($self->file, ".pdf", ".PDF");
+        die $self->file . " has a suffix not recognized" unless $suffix;
+        $f = File::Spec->catfile($path, $name . $choosen_suffix . $suffix);
+        $self->{outfile} = $f;
+    }
+    return $f;
+}
+
+sub suffix {
+    my $self = shift;
+    if (@_ == 1) {
+        $self->{suffix} = shift;
+    }
+    return $self->{suffix} || "-imp";
+}
+
 
 =head1 AUTHOR
 
