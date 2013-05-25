@@ -137,6 +137,24 @@ sub suffix {
     return $self->{suffix} || "-imp";
 }
 
+
+=head3 signature
+
+The signature, must be a multiple of 4.
+
+=cut
+
+sub signature {
+    my $self = shift;
+    if (@_ == 1) {
+        $self->{signature} = shift;
+    }
+    my $sig = $self->{signature} || 0;
+    die "Signature must be a multiple of four" if ($sig % 4);
+    return;
+}
+
+
 =head2 Accessors
 
 CAM::PDF is used to get the properties.
@@ -195,35 +213,48 @@ sub orig_height {
 }
 
 
-=head2 PSBOOK algo:
 
-   if (!signature)
-      signature = maxpage = pages+(4-pages%4)%4;
-   else
-      maxpage = pages+(signature-pages%signature)%signature;
+=head3 page_sequence_for_booklet($pages, $signature)
 
-   /* rearrange pages */
-   writeheader(maxpage, NULL);
-   writeprolog();
-   writesetup();
-   for (currentpg = 0; currentpg < maxpage; currentpg++) {
-      int actualpg = currentpg - currentpg%signature;
-      switch(currentpg%4) {
-      case 0:
-      case 3:
-	 actualpg += signature-1-(currentpg%signature)/2;
-	 break;
-      case 1:
-      case 2:
-	 actualpg += (currentpg%signature)/2;
-	 break;
-      }
-      if (actualpg < pages)
-	 writepage(actualpg);
-      else
-	 writeemptypage();
-   }
-   writetrailer();
+Algorithm taken from psbook (Angus J. C. Duggan 1991-1995)
+
+=cut
+
+sub page_sequence_for_booklet {
+    my ($self, $pages, $signature) = @_;
+    unless (defined $pages) {
+        $pages = $self->total_pages;
+    }
+    unless (defined $signature) {
+        $signature = $self->signature;
+    }
+    my (@pgs, $maxpage);
+    use integer;
+    if (!$signature) {
+        # rounding 
+        $signature = $maxpage = $pages + ((4 - ($pages % 4)) % 4);
+    }
+    else {
+        $maxpage = $pages + (($signature - ($pages % $signature)) % $signature)
+    }
+    for (my $currentpg = 0; $currentpg < $maxpage; $currentpg++) {
+        my $actualpg = $currentpg - ($currentpg % $signature);
+        my $modulo = $currentpg % 4;
+        if ($modulo == 0 or $modulo == 3) {
+            $actualpg += $signature - 1 - (($currentpg % $signature) / 2);
+        }
+        elsif ($modulo == 1 or $modulo == 2) {
+            $actualpg += ($currentpg % $signature) / 2;
+        }
+        if ($actualpg < $pages) {
+            $actualpg++;
+        } else {
+            $actualpg = 0;
+        }
+        push @pgs, $actualpg;
+    }
+    return \@pgs;
+}
 
 
 =head2 Main method
