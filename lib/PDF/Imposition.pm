@@ -137,6 +137,107 @@ sub suffix {
     return $self->{suffix} || "-imp";
 }
 
+=head2 Accessors
+
+CAM::PDF is used to get the properties.
+
+=head3 dimensions
+
+Returns an hashref with the original pdf dimensions in points.
+
+  { w => 800, h => 600 }
+
+=head3 total_pages
+
+Returns the number of pages
+
+=head3 orig_width
+
+=head3 orig_height
+
+=cut
+
+sub _populate_orig {
+    my $self = shift;
+    my $pdf = CAM::PDF->new($self->file);
+    my ($x, $y, $w, $h) = $pdf->getPageDimensions(1); # use the first page
+    warn $self->file . "use x-y offset, cannot proceed safely" if ($x + $y);
+    die "Cannot retrieve paper dimensions" unless $w && $h;
+    $self->{_dimensions} = { w => sprintf('%.2f', $w),
+                             h => sprintf('%.2f', $h) };
+    $self->{_total_orig_pages} = $pdf->numPages;
+    undef $pdf;
+}
+
+sub dimensions {
+    my $self = shift;
+    unless ($self->{_dimensions}) {
+        $self->_populate_orig;
+    }
+    # return a copy
+    return { %{$self->{_dimensions}} };
+}
+
+sub total_pages {
+    my $self = shift;
+    unless ($self->{_total_orig_pages}) {
+        $self->_populate_orig;
+    }
+    return $self->{_total_orig_pages};
+}
+
+sub orig_width {
+    return shift->dimensions->{w};
+}
+
+sub orig_height {
+    return shift->dimensions->{h};
+}
+
+
+=head2 PSBOOK algo:
+
+   if (!signature)
+      signature = maxpage = pages+(4-pages%4)%4;
+   else
+      maxpage = pages+(signature-pages%signature)%signature;
+
+   /* rearrange pages */
+   writeheader(maxpage, NULL);
+   writeprolog();
+   writesetup();
+   for (currentpg = 0; currentpg < maxpage; currentpg++) {
+      int actualpg = currentpg - currentpg%signature;
+      switch(currentpg%4) {
+      case 0:
+      case 3:
+	 actualpg += signature-1-(currentpg%signature)/2;
+	 break;
+      case 1:
+      case 2:
+	 actualpg += (currentpg%signature)/2;
+	 break;
+      }
+      if (actualpg < pages)
+	 writepage(actualpg);
+      else
+	 writeemptypage();
+   }
+   writetrailer();
+
+
+=head2 Main method
+
+=head3 impose
+
+Do the job and leave the output in C<$self->outfile>
+
+=cut
+
+sub impose {
+    my $self = shift;
+    return;
+}
 
 =head1 AUTHOR
 

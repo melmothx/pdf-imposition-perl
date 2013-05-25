@@ -18,8 +18,9 @@ WriteMakefile(
         'Test::More' => 0,
     },
     PREREQ_PM => {
-        #'ABC'              => 1.6,
-        #'Foo::Bar::Module' => 5.0401,
+        'Try::Tiny' => 0,
+        'CAM::PDF' => 1.58,
+        'PDF::API2' => 2.019,
     },
     dist  => { COMPRESS => 'gzip -9f', SUFFIX => 'gz', },
     clean => { FILES => 'PDF-Imposition-*' },
