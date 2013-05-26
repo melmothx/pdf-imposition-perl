@@ -36,6 +36,7 @@ warn "Output on " . $imposer->outfile . "\n";
 if (-f $imposer->outfile) {
     unlink $imposer->outfile or die "Couldn't remove old output! $!";
 }
+$imposer->cover(1);
 $imposer->impose;
 # and that's all
 

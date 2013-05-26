@@ -8,13 +8,12 @@ use PDF::Imposition;
 use Data::Dumper;
 use Try::Tiny;
 
-plan tests => 17;
+plan tests => 15;
 
 my $pdfi = PDF::Imposition->new;
 
 $pdfi->file(catfile(t => "sample2e.pdf"));
 $pdfi->cover(1);
-$pdfi->doublecover(1);
 $pdfi->suffix("-test");
 
 testaccessors($pdfi);
@@ -22,7 +21,6 @@ testaccessors($pdfi);
 $pdfi = PDF::Imposition->new(
                              file => catfile(t => "sample2e.pdf"),
                              cover => 1,
-                             doublecover => 1,
                              suffix => "-test",
                             );
 
@@ -31,7 +29,6 @@ testaccessors($pdfi);
 $pdfi = PDF::Imposition->new(
                              file => catfile(t => "sample2e.pdf"),
                              cover => 1,
-                             doublecover => 1,
                              suffix => "-test",
                              outfile => "prova_pdf.pdf"
                             );
@@ -86,7 +83,6 @@ sub testaccessors {
     ok($pdf->outfile, "outfile ok" . $pdf->outfile);
     is($pdf->outfile, catfile(t => "sample2e-test.pdf"), "sample2-test.pdf");
     is($pdf->cover, 1, "cover is true");
-    is($pdf->doublecover, 1, "double cover is true");
     is($pdf->suffix, "-test", "suffix exists");
     $pdf->outfile("test.pdf");
     is($pdf->outfile, "test.pdf", "outfile overwrites");

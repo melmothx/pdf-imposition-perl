@@ -13,7 +13,7 @@ use File::Copy;
 
 =head1 NAME
 
-PDF::Imposition - The great new PDF::Imposition!
+PDF::Imposition - Perl module to manage the PDF imposition.
 
 =head1 VERSION
 
@@ -26,20 +26,19 @@ our $VERSION = '0.01';
 
 =head1 SYNOPSIS
 
-Quick summary of what the module does.
-
-Perhaps a little code snippet.
-
     use PDF::Imposition;
+    my $imposer = PDF::Imposition->new(file => "test.pdf", cover => 1);
+    $imposer->signature(50); # or $imposer->signature("50-80");
+    $imposer->impose;
 
-    my $foo = PDF::Imposition->new();
-    ...
 
 =head1 SUBROUTINES/METHODS
 
-=head2 new(file => "file.pdf", suffix => "-imp", cover => 0, doublecover => 1)
+=head2 new(file => "file.pdf", suffix => "-imp", cover => 0, [...])
 
-Costructor. Options should be passed as list.
+Costructor. Options should be passed as list. The options are the same
+of the above accessors, so passing C<$self->file("file.pdf")> is
+exactly the same of passing C<$self->new(file => "file.pdf")>.
 
 =cut
 
@@ -56,36 +55,6 @@ sub new {
 =head2 Accessors
 
 All the following accessors accept an argument, which sets the value.
-
-=head3 doublecover
-
-If the first two pages and the last two pages should be embedded in
-the cover. As cover I refer to the pages which should *always* be the
-first and the last, even if the total number of page is not a multiple
-of four.
-
-=head3 cover
-
-Same as above, but reserve only one page, and keep page 2 and page
-last-1 blank.
-
-=cut
-
-sub cover {
-    my $self = shift;
-    if (@_ == 1) {
-        $self->{cover} = shift;
-    }
-    return $self->{cover};
-}
-
-sub doublecover {
-    my $self = shift;
-    if (@_ == 1) {
-        $self->{doublecover} = shift;
-    }
-    return $self->{doublecover};
-}
 
 =head3 file
 
@@ -226,6 +195,27 @@ sub _find_signature {
     warn "Looped ended with no result\n";
 }
 
+=head3 cover
+
+This option is only used when the booklet schema is asked, i.e., when
+a variable signature is needed. Often it happens that we want the last
+page of the pdf to be the last on the physical booklet. The original
+algorithm just fills the signature with blank pages. If C<cover> is
+set to a true value, the last page of the logical pdf will be placed
+on the last page of the last signature.
+
+=cut
+
+sub cover {
+    my $self = shift;
+    if (@_ == 1) {
+        $self->{cover} = shift;
+    }
+    return $self->{cover};
+}
+
+
+
 =head2 Accessors
 
 CAM::PDF is used to get the properties.
@@ -287,7 +277,8 @@ sub orig_height {
 
 =head3 page_sequence_for_booklet($pages, $signature)
 
-Algorithm taken from psbook (Angus J. C. Duggan 1991-1995)
+Algorithm taken from psbook (Angus J. C. Duggan 1991-1995). Used
+internally.
 
 =cut
 
@@ -325,7 +316,39 @@ sub page_sequence_for_booklet {
         push @pgs, $actualpg;
     }
     my @out;
-    # then prepare the page pairs
+    # if we want a cover, we need to find the index of the last page,
+    # and the first undef page, which could be at the beginning of the
+    # last signature, so we have to scan the array.
+    if ($self->cover) {
+        warn "Preserving the cover\n";
+        use Data::Dumper;
+        print Dumper(\@pgs);
+        print "$pages\n";
+        my $last;
+        my $firstundef;
+        for (my $i = 0; $i < @pgs; $i++) {
+            if ($pgs[$i] and $pgs[$i] == $pages) {
+                $last = $i;
+            }
+        }
+        for (my $i = 0; $i < @pgs; $i++) {
+            if (not defined $pgs[$i]) {
+                print "found! $i";
+                $firstundef = $i;
+                last;
+            }
+        }
+        print "\n";
+        if (defined $firstundef) {
+            warn "$firstundef, $last\n";
+            # there is an undef, so swap;
+            $pgs[$firstundef] = $pgs[$last];
+            $pgs[$last] = undef;
+        }
+        else {
+            warn "Nothing to do? $firstundef, $last";
+        }
+    }
     while (@pgs) {
         push @out, [ shift(@pgs), shift(@pgs) ];
     }
