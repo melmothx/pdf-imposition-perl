@@ -226,52 +226,6 @@ sub _find_signature {
     warn "Looped ended with no result\n";
 }
 
-=head3 lua code
-
-   if ((minsignature == 0) or (maxsignature == 0)) then 
-      signature = pages -- the whole text
-   else
-      -- give a try with the signature
-      signature = find_signature(pages, maxsignature)
-      
-      -- if the pages, are more than the max signature, find the right one
-      if pages>maxsignature then
-	 while signature<minsignature do
-	    pages = pages + 4
-	    neededpages = 4 + neededpages
-	    signature = find_signature(pages, maxsignature)
-	    --         global.texio.write_nl('term and log', "Trying signature of " .. signature)
-	 end
-      end
-      global.texio.write_nl('term and log', "Parameters:: maxsignature=" .. maxsignature ..
-		   " minsignature=" .. minsignature)
-
-   end
-   global.texio.write_nl('term and log', "ImposerMessage:: Original pages: " .. originalpages .. "; " .. 
-	 "Signature is " .. signature .. ", " ..
-	 neededpages .. " pages are needed, " .. 
-	 pages ..  " of output")
-   -- let's do it
-   tex.print("\\dorecurse{" .. neededpages .. "}{\\page[empty]}")
-
-end
-
-function find_signature(number, maxsignature)
-   global.assert(number>3, "I can't find the signature for" .. number .. "pages")
-   global.assert((number % 4) == 0, "I suppose something is wrong, not a n*4")
-   local i = maxsignature
-   while i>0 do
-      -- global.texio.write_nl('term and log', "Trying " .. i  .. "for max of " .. maxsignature)
-      if (number % i) == 0 then
-	 return i
-      end
-      i = i - 4
-   end
-end
-
-=cut
-
-
 =head2 Accessors
 
 CAM::PDF is used to get the properties.
