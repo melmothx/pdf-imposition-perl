@@ -25,6 +25,7 @@ for my $i (1..400) {
     my $lua = <$fh>;
     chomp $lua;
     my ($orig, $total, $signature, $lua_needed) = split / +/, $lua;
+    die unless $orig == $i;
     my ($sig, $needed) = $imp->_optimize_signature('39-59', $i);
     print "$needed for $i ($sig)\n" if $needed > 10;
     ok(($sig % 4) == 0);
