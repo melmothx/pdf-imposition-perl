@@ -163,7 +163,7 @@ sub signature {
     }
     my $sig = $self->{signature} || 0;
     die "Signature must be a multiple of four" if ($sig % 4);
-    return;
+    return $sig;
 }
 
 
