@@ -11,6 +11,10 @@ use CAM::PDF;
 use PDF::API2;
 
 my $sample = catfile(t => "sample2e.pdf");
+my $outsample = catfile(t => "sample2e-imp.pdf");
+if (-f $outsample) {
+    unlink $outsample or die "cannot unlink $outsample $!"
+}
 my $imposer = PDF::Imposition->new(file => $sample);
 
 is($imposer->total_pages, 3, "pages ok");
@@ -21,7 +25,21 @@ is_deeply($imposer->dimensions, {
                                  h => 841.89,
                                 }, "dimension ok");
 
+
+my $seq = $imposer->page_sequence_for_booklet(24);
+$seq = $imposer->page_sequence_for_booklet(18,16);
+format_seq($seq);
+
+ok($imposer->in_pdf_obj, "in object ok");
+ok($imposer->out_pdf_obj, "out object ok");
+ok($imposer->_tmp_dir, "Temp directory is " . $imposer->_tmp_dir);
+is($imposer->impose, $outsample);
+ok(-f $outsample, "output file $outsample created");
+
 done_testing;
+
+
+
 
 my $orig = "16.pdf";
 my $src = CAM::PDF->new(catfile(t => $orig));
@@ -66,3 +84,13 @@ $gfx->rotate(10);
 $gfx->formimage($xo);
 
 $pdf->saveas($result);
+
+sub format_seq {
+    my $sequence = shift;
+    my @seq = @$sequence;
+    while (my $page = shift(@seq)) {
+        printf (' [%3s] [%3s]', $page->[0] || " * ", $page->[1] || " * ");
+        print "\n";
+    }
+}
+

@@ -7,6 +7,9 @@ use warnings;
 use File::Basename qw/fileparse/;
 use File::Spec;
 use CAM::PDF;
+use PDF::API2;
+use File::Temp ();
+use File::Copy;
 
 =head1 NAME
 
@@ -100,6 +103,15 @@ sub file {
     return $f;
 }
 
+sub _tmp_dir {
+    my $self = shift;
+    unless ($self->{_tmp_dir}) {
+        $self->{_tmp_dir} = File::Temp->newdir(CLEANUP => 0);
+    }
+    return $self->{_tmp_dir};
+}
+
+
 =head3 outfile
 
 The destination file of the imposition. You may prefer to use the
@@ -120,10 +132,10 @@ sub outfile {
     }
     my $f = $self->{outfile};
     unless ($f) {
-        my $choosen_suffix = $self->suffix;
-        my ($name, $path, $suffix) = fileparse($self->file, ".pdf", ".PDF");
+        my ($name, $path, $suffix) = fileparse($self->file,
+                                               ".pdf", ".PDF");
         die $self->file . " has a suffix not recognized" unless $suffix;
-        $f = File::Spec->catfile($path, $name . $choosen_suffix . $suffix);
+        $f = File::Spec->catfile($path, $name . $self->suffix . $suffix);
         $self->{outfile} = $f;
     }
     return $f;
@@ -249,13 +261,65 @@ sub page_sequence_for_booklet {
         if ($actualpg < $pages) {
             $actualpg++;
         } else {
-            $actualpg = 0;
+            $actualpg = undef;
         }
         push @pgs, $actualpg;
     }
-    return \@pgs;
+    my @out;
+    # then prepare the page pairs
+    while (@pgs) {
+        push @out, [ shift(@pgs), shift(@pgs) ];
+    }
+    return \@out;
 }
 
+
+=head3 in_pdf_obj
+
+Internal usage. It's the PDF::API2 object used as source.
+
+=head3 out_pdf_obj
+
+Internal usage. The PDF::API2 object used as output.
+
+=cut
+
+sub in_pdf_obj {
+    my $self = shift;
+    unless ($self->{_input_pdf_obj}) {
+        my ($basename, $path, $suff) = fileparse($self->file,
+                                                 ".pdf", ".PDF");
+        my $tmpfile = File::Spec->catfile($self->_tmp_dir,
+                                          $basename . $suff);
+        copy($self->file, $tmpfile) or die "copy to $tmpfile failed $!";
+        my $input;
+        eval {
+            $input = PDF::API2->open($tmpfile);
+        };
+        if ($@) {
+            # dirty trick to get a pdf 1.4
+            my $src = CAM::PDF->new($tmpfile);
+            $src->clean;
+            my $tmpfile_copy =
+              File::Spec->catfile($self->_tmp_dir,
+                                  $basename . "-v14" . $suff);
+            $src->output($tmpfile_copy);
+            undef $src;
+            $input = PDF::API2->open($tmpfile_copy);
+        }
+        die "Missing input" unless $input;
+        $self->{_input_pdf_obj} = $input;
+    }
+    return $self->{_input_pdf_obj};
+}
+
+sub out_pdf_obj {
+    my $self = shift;
+    unless ($self->{_output_pdf_obj}) {
+        $self->{_output_pdf_obj} = PDF::API2->new();
+    }
+    return $self->{_output_pdf_obj};
+}
 
 =head2 Main method
 
@@ -267,8 +331,33 @@ Do the job and leave the output in C<$self->outfile>
 
 sub impose {
     my $self = shift;
-    return;
+    # prototype
+    $self->out_pdf_obj->mediabox(
+                                 $self->orig_width * 2,
+                                 $self->orig_height,
+                                );
+    my $seq = $self->page_sequence_for_booklet;
+    foreach my $p (@$seq) {
+        # loop over the pages
+        my $left = $p->[0];
+        my $right = $p->[1];
+        my $page = $self->out_pdf_obj->page();
+        my $gfx = $page->gfx();
+        if (defined $left) {
+            my $lpage = $self->out_pdf_obj
+              ->importPageIntoForm($self->in_pdf_obj, $left);
+            $gfx->formimage($lpage, 0, 0);
+        }
+        if (defined $right) {
+            my $rpage = $self->out_pdf_obj
+              ->importPageIntoForm($self->in_pdf_obj, $right);
+            $gfx->formimage($rpage, $self->orig_width, 0);
+        }
+    }
+    $self->out_pdf_obj->saveas($self->outfile);
+    return $self->outfile;
 }
+
 
 =head1 AUTHOR
 
