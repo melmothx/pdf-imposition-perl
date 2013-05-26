@@ -152,7 +152,9 @@ sub suffix {
 
 =head3 signature
 
-The signature, must be a multiple of 4.
+The signature, must be a multiple of 4, or a range, like 20-100. If a
+range is selected, the signature is determined to minize the white
+pages left on the last signature.
 
 =cut
 
@@ -162,9 +164,112 @@ sub signature {
         $self->{signature} = shift;
     }
     my $sig = $self->{signature} || 0;
-    die "Signature must be a multiple of four" if ($sig % 4);
-    return $sig;
+    return $self->_optimize_signature($sig) + 0; # force the scalar context
 }
+
+sub _optimize_signature {
+    my ($self, $sig, $total_pages) = @_;
+    unless ($total_pages) {
+        $total_pages = $self->total_pages;
+    }
+    return 0 unless $sig;
+    if ($sig =~ m/^[0-9]+$/s) {
+        die "Signature must be a multiple of four" if $sig % 4;
+        return $sig;
+    }
+    my ($min, $max);
+    if ($sig =~ m/^([0-9]+)?-([0-9]+)?$/s) {
+        $min = $1 || 4;
+        $max = $2 || $total_pages;
+        $min = $min + ((4 - ($min % 4)) % 4);
+        $max = $max + ((4 - ($max % 4)) % 4);
+        die "Bad range $max - $min" unless $max > $min;
+        die "bad min $min" if $min % 4;
+        die "bad max $max" if $max % 4;
+    }
+    else {
+        die "Unrecognized range $sig";
+    }
+    my $signature = 0;
+    my $roundedpages = $total_pages + ((4 - ($total_pages % 4)) % 4);
+    my $needed = $roundedpages - $total_pages;
+    die "Something is wrong" if $roundedpages % 4;
+    if ($roundedpages <= $min) {
+        wantarray ? return ($roundedpages, $needed) : return $roundedpages;
+    }
+    $signature = $self->_find_signature($roundedpages, $max);
+    if ($roundedpages > $max) {
+        while ($signature < $min) {
+            $roundedpages += 4;
+            $needed += 4;
+            $signature = $self->_find_signature($roundedpages, $max)
+        }
+    }
+    # warn "Needed $needed blank pages";
+    wantarray ? return ($signature, $needed) : return $signature;
+}
+
+sub _find_signature {
+    my ($self, $num, $max) = @_;
+    die "not a multiple of four" if $num % 4;
+    die "uh?" unless $num;
+    my $i = $max;
+    while ($i > 0) {
+        # check if the the pagenumber is divisible by the signature
+        # with modulo 0
+        # warn "trying $i for $num / max $max\n";
+        if (($num % $i) == 0) {
+            return $i;
+        }
+        $i -= 4;
+    }
+    warn "Looped ended with no result\n";
+}
+
+=head3 lua code
+
+   if ((minsignature == 0) or (maxsignature == 0)) then 
+      signature = pages -- the whole text
+   else
+      -- give a try with the signature
+      signature = find_signature(pages, maxsignature)
+      
+      -- if the pages, are more than the max signature, find the right one
+      if pages>maxsignature then
+	 while signature<minsignature do
+	    pages = pages + 4
+	    neededpages = 4 + neededpages
+	    signature = find_signature(pages, maxsignature)
+	    --         global.texio.write_nl('term and log', "Trying signature of " .. signature)
+	 end
+      end
+      global.texio.write_nl('term and log', "Parameters:: maxsignature=" .. maxsignature ..
+		   " minsignature=" .. minsignature)
+
+   end
+   global.texio.write_nl('term and log', "ImposerMessage:: Original pages: " .. originalpages .. "; " .. 
+	 "Signature is " .. signature .. ", " ..
+	 neededpages .. " pages are needed, " .. 
+	 pages ..  " of output")
+   -- let's do it
+   tex.print("\\dorecurse{" .. neededpages .. "}{\\page[empty]}")
+
+end
+
+function find_signature(number, maxsignature)
+   global.assert(number>3, "I can't find the signature for" .. number .. "pages")
+   global.assert((number % 4) == 0, "I suppose something is wrong, not a n*4")
+   local i = maxsignature
+   while i>0 do
+      -- global.texio.write_nl('term and log', "Trying " .. i  .. "for max of " .. maxsignature)
+      if (number % i) == 0 then
+	 return i
+      end
+      i = i - 4
+   end
+end
+
+=cut
 
 
 =head2 Accessors
