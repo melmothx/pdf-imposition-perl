@@ -10,7 +10,7 @@ use CAM::PDF;
 use CAM::PDF::PageText;
 
 plan tests => 1;
-my $testdir = File::Temp->newdir();
+my $testdir = File::Temp->newdir(CLEANUP => 1);
 diag "Using $testdir as test directory";
 unless (-d $testdir) {
     mkdir $testdir or die "cannot create $testdir => $!";
@@ -51,6 +51,3 @@ diag "If you fail this test, your installation of PDF::API2";
 diag "and/or CAM::PDF is broken";
 
 is_deeply(\@extracted, \@pages, "Text extraction works");
-unlink $pdffile;
-rmdir $testdir;
-# end
