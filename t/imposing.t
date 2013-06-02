@@ -12,13 +12,14 @@ use Data::Dumper;
 
 # anyway, being that the tests are still useful in development
 # environment, let's shell out.
-
+$| = 1;
+print "Using ";
 my $pdftotext = system('pdftotext', '-v');
 if ($pdftotext != 0) {
     plan skip_all => q{pdftotext not available, I can't proceed};
 }
 else {
-    plan tests => 1
+    plan tests => 4;
 }
 
 my $testdir = File::Temp->newdir(CLEANUP => 0);
@@ -43,6 +44,44 @@ is_deeply(extract_pdf($imp->outfile),
           ],
           "Simple imposition ok");
 
+create_pdf($pdffile, 1..20);
+$imp = PDF::Imposition->new(file => $pdffile);
+$imp->impose;
+is_deeply(extract_pdf($imp->outfile),
+          [
+           [ 20, 1 ],
+           [ 2, 19 ],
+           [ 18, 3 ],
+           [ 4, 17 ],
+           [ 16, 5 ],
+           [ 6, 15 ],
+           [ 14, 7 ],
+           [ 8, 13 ],
+           [ 12, 9 ],
+           [ 10, 11]
+          ],
+          "Imposing 20 pages OK");
+
+create_pdf($pdffile, 1..16);
+$imp = PDF::Imposition->new(file => $pdffile);
+$imp->signature(4);
+is($imp->signature, 4, "signature set at 4");
+$imp->impose;
+is_deeply(extract_pdf($imp->outfile),
+          [
+           [4,  1],
+           [2 , 3],
+           [8 , 5],
+           [6,  7],
+           [12, 9],
+           [10, 11],
+           [16, 13],
+           [14, 15]
+          ],
+          "Signatures appear to work");
+
+# print Dumper($imp->page_sequence_for_booklet);
+          
 
 sub create_pdf {
     my ($filename, @pages) = @_;
