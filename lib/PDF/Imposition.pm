@@ -320,10 +320,6 @@ sub page_sequence_for_booklet {
     # and the first undef page, which could be at the beginning of the
     # last signature, so we have to scan the array.
     if ($self->cover) {
-        warn "Preserving the cover\n";
-        use Data::Dumper;
-        print Dumper(\@pgs);
-        print "$pages\n";
         my $last;
         my $firstundef;
         for (my $i = 0; $i < @pgs; $i++) {
@@ -333,14 +329,11 @@ sub page_sequence_for_booklet {
         }
         for (my $i = 0; $i < @pgs; $i++) {
             if (not defined $pgs[$i]) {
-                print "found! $i";
                 $firstundef = $i;
                 last;
             }
         }
-        print "\n";
         if (defined $firstundef) {
-            warn "$firstundef, $last\n";
             # there is an undef, so swap;
             $pgs[$firstundef] = $pgs[$last];
             $pgs[$last] = undef;

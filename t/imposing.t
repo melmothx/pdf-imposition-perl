@@ -12,14 +12,12 @@ use Data::Dumper;
 
 # anyway, being that the tests are still useful in development
 # environment, let's shell out.
-$| = 1;
-print "Using ";
 my $pdftotext = system('pdftotext', '-v');
 if ($pdftotext != 0) {
     plan skip_all => q{pdftotext not available, I can't proceed};
 }
 else {
-    plan tests => 4;
+    plan tests => 10;
 }
 
 my $testdir = File::Temp->newdir(CLEANUP => 0);
@@ -80,6 +78,128 @@ is_deeply(extract_pdf($imp->outfile),
           ],
           "Signatures appear to work");
 
+########################################################################
+#                                                                      #
+# We can't determine without a visual inspection if the page is placed #
+# on the right side, (when one page is empty, but we suppose so :-)    #
+#                                                                      #
+########################################################################
+
+create_pdf($pdffile, 1..19);
+$imp = PDF::Imposition->new(file => $pdffile);
+$imp->impose;
+is_deeply(extract_pdf($imp->outfile),
+          [
+           [ 1, undef ],
+           [ 2, 19 ],
+           [ 18, 3 ],
+           [ 4, 17 ],
+           [ 16, 5 ],
+           [ 6, 15 ],
+           [ 14, 7 ],
+           [ 8, 13 ],
+           [ 12, 9 ],
+           [ 10, 11]
+          ],
+          "Imposing 19 pages OK");
+
+create_pdf($pdffile, 1..19);
+$imp = PDF::Imposition->new(file => $pdffile);
+$imp->cover(1);
+$imp->impose;
+is_deeply(extract_pdf($imp->outfile),
+          [
+           [ 19, 1 ],
+           [ 2, undef ],
+           [ 18, 3 ],
+           [ 4, 17 ],
+           [ 16, 5 ],
+           [ 6, 15 ],
+           [ 14, 7 ],
+           [ 8, 13 ],
+           [ 12, 9 ],
+           [ 10, 11]
+          ],
+          "Imposing 19 pages OK");
+
+
+create_pdf($pdffile, 1..18);
+$imp = PDF::Imposition->new(file => $pdffile);
+$imp->impose;
+is_deeply(extract_pdf($imp->outfile),
+          [
+           [ 1, undef ],
+           [ 2, undef ],
+           [ 18, 3 ],
+           [ 4, 17 ],
+           [ 16, 5 ],
+           [ 6, 15 ],
+           [ 14, 7 ],
+           [ 8, 13 ],
+           [ 12, 9 ],
+           [ 10, 11]
+          ],
+          "Imposing 18 pages OK");
+
+create_pdf($pdffile, 1..18);
+$imp = PDF::Imposition->new(file => $pdffile);
+$imp->cover(1);
+$imp->impose;
+is_deeply(extract_pdf($imp->outfile),
+          [
+           [ 18, 1 ],
+           [ 2, undef ],
+           [ 3, undef ],
+           [ 4, 17 ],
+           [ 16, 5 ],
+           [ 6, 15 ],
+           [ 14, 7 ],
+           [ 8, 13 ],
+           [ 12, 9 ],
+           [ 10, 11]
+          ],
+          "Imposing 18 pages OK");
+
+
+create_pdf($pdffile, 1..17);
+$imp = PDF::Imposition->new(file => $pdffile);
+$imp->impose;
+is_deeply(extract_pdf($imp->outfile),
+          [
+           [ 1, undef ],
+           [ 2, undef ],
+           [ 3, undef ],
+           [ 4, 17 ],
+           [ 16, 5 ],
+           [ 6, 15 ],
+           [ 14, 7 ],
+           [ 8, 13 ],
+           [ 12, 9 ],
+           [ 10, 11]
+          ],
+          "Imposing 17 pages OK");
+
+create_pdf($pdffile, 1..17);
+$imp = PDF::Imposition->new(file => $pdffile);
+$imp->cover(1);
+$imp->impose;
+is_deeply(extract_pdf($imp->outfile),
+          [
+           [ 17, 1 ],
+           [ 2, undef ],
+           [ 3, undef ],
+           [ 4, undef ],
+           [ 16, 5 ],
+           [ 6, 15 ],
+           [ 14, 7 ],
+           [ 8, 13 ],
+           [ 12, 9 ],
+           [ 10, 11]
+          ],
+          "Imposing 18 pages OK");
+
+
+
 # print Dumper($imp->page_sequence_for_booklet);
           
 
@@ -117,12 +237,16 @@ sub extract_pages {
     # split at ^L
     my @pages = split /\x{0C}/, $rawtext;
     my @out;
+    # print Dumper(\@pages);
     foreach my $p (@pages) {
         my @nums;
-        while ($p =~ m/Page (\d+)/g) {
-            push @nums, $1;
+        # this is (of course) very fragile;
+        if ($p =~ m/\s*(Page (\d+))?\s*?\n\n\s*(Page (\d+))?\s*/s) {
+            push @out, [$2, $4];
         }
-        push @out, \@nums;
+        else {
+            die "Unparsable chunk: $p\n";
+        }
     }
     return \@out;
 }
