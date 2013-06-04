@@ -202,10 +202,10 @@ sub in_pdf_obj {
         if ($@) {
             # dirty trick to get a pdf 1.4
             my $src = CAM::PDF->new($tmpfile);
-            $src->clean;
             my $tmpfile_copy =
               File::Spec->catfile($self->_tmp_dir,
                                   $basename . "-v14" . $suff);
+            $src->cleansave();
             $src->output($tmpfile_copy);
             undef $src;
             $input = PDF::API2->open($tmpfile_copy);

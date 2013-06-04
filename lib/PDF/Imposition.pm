@@ -42,7 +42,7 @@ L<PDF::Imposition::Schema> subclass object, defaulting to
 L<PDF::Imposition::Schema2up> (which is assumed to be the most common
 scenario).
 
-If you prefer, you can right class yourself.
+If you prefer, you can load the right class yourself.
 
 =cut
 
@@ -52,10 +52,7 @@ sub new {
         # clean the options from internals
         delete $options{$k} if index($k, "_") == 0;
     }
-    my $schema = '2up'; #  default
-    if (my $opt_schema = delete $options{schema}) {
-        $schema = $opt_schema
-    }
+    my $schema = delete $options{schema} || '2up'; #  default
     my $loadclass = __PACKAGE__ . '::Schema' . $schema;
     load $loadclass;
     return $loadclass->new(%options);
