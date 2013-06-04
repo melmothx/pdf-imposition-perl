@@ -21,7 +21,7 @@ if ($pdftotext != 0) {
     plan skip_all => q{pdftotext not available, I can't proceed};
 }
 else {
-    plan tests => 11;
+    plan tests => 12;
 }
 
 my $testdir = File::Temp->newdir(CLEANUP => 0);
@@ -237,6 +237,30 @@ is_deeply(extract_pdf($imp->outfile),
            [ 11, 10]
           ],
           "Imposing 17 pages OK");
+
+create_pdf($pdffile, 1..17);
+$imp = PDF::Imposition->new(
+                            file => $pdffile,
+                            schema => '2down',
+                            cover => 1,
+                           );
+
+$imp->impose;
+is_deeply(extract_pdf($imp->outfile),
+          [
+           [ 1 ,17 ],
+           [ 2, undef ],
+           [ 3, undef ],
+           [ 4, undef ],
+           [ 5, 16 ],
+           [ 15, 6 ],
+           [ 7, 14 ],
+           [ 13, 8 ],
+           [ 9, 12 ],
+           [ 11, 10]
+          ],
+          "Imposing 17 pages OK");
+
 
 move($imp->outfile, $outputdir)
   or die "Cannot move " . $imp->outfile . " in " . $outputdir;
