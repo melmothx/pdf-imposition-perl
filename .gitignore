@@ -18,4 +18,5 @@ PDF-Imposition-*
 PDF-Imposition-*.tar.gz
 *~
 t/tests/*
+t/output/*
 *.bak

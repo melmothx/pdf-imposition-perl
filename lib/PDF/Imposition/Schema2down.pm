@@ -22,24 +22,20 @@ sub impose {
         my $left = $p->[0];
         my $right = $p->[1];
         my $page = $self->out_pdf_obj->page();
-        my $lgfx = $page->gfx();
-        my $rgfx = $page->gfx();
-        $lgfx->transform (
+        my $gfx = $page->gfx();
+        $gfx->transform (
                           -translate => [$self->orig_height, 0],
                           -rotate => 90
                          );
         if (defined $left) {
-            print "[$left] ";
             my $lpage = $self->out_pdf_obj
               ->importPageIntoForm($self->in_pdf_obj, $left);
-            $lgfx->formimage($lpage);
+            $gfx->formimage($lpage);
         }
         if (defined $right) {
-            print "[$right]\n";
             my $rpage = $self->out_pdf_obj
               ->importPageIntoForm($self->in_pdf_obj, $right);
-            $rgfx->translate(0,  0 - $self->orig_height);
-            $rgfx->formimage($rpage);
+            $gfx->formimage($rpage, 0, 0 - $self->orig_height);
         }
     }
     $self->out_pdf_obj->saveas($self->outfile);

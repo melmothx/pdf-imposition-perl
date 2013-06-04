@@ -3,9 +3,12 @@ use warnings;
 use Test::More;
 use File::Temp;
 use File::Spec::Functions;
+use File::Basename;
+use File::Copy;
 use PDF::Imposition;
 use PDF::API2;
 use Data::Dumper;
+use Cwd;
 
 # unfortunately, CAM::PDF is not capable of extracting the text from
 # an imposed pdf, probably because of the nested pages, so they are
@@ -18,23 +21,26 @@ if ($pdftotext != 0) {
     plan skip_all => q{pdftotext not available, I can't proceed};
 }
 else {
-    plan tests => 10;
+    plan tests => 11;
 }
 
 my $testdir = File::Temp->newdir(CLEANUP => 0);
+my $outputdir = catdir(getcwd(), "t", "output");
+unless (-d $outputdir) {
+    mkdir $outputdir or die "Cannot create $outputdir $!";
+}
+
 diag "Using $testdir as test directory";
 unless (-d $testdir) {
     mkdir $testdir or die "cannot create $testdir => $!";
 }
-my $pdffile = File::Spec->catfile($testdir, "scratch.pdf");
+my $pdffile = File::Spec->catfile($testdir, "2up.pdf");
 
 create_pdf($pdffile, 1..4);
 diag "using $pdffile";
 
 my $imp = PDF::Imposition->new(file => $pdffile);
 $imp->impose;
-print $imp->outfile, "\n";
-print Dumper();
 
 is_deeply(extract_pdf($imp->outfile),
           [
@@ -199,6 +205,42 @@ is_deeply(extract_pdf($imp->outfile),
           ],
           "Imposing 18 pages OK");
 
+move($imp->outfile, $outputdir)
+  or die "Cannot move " . $imp->outfile . " in " . $outputdir;
+diag "PDF 2up left in " . catfile($outputdir, basename($pdffile));
+
+
+$pdffile = File::Spec->catfile($testdir, "2down.pdf");
+create_pdf($pdffile, 1..17);
+$imp = PDF::Imposition->new(
+                            file => $pdffile,
+                            schema => '2down',
+                           );
+
+$imp->impose;
+
+# here the odd pages are on the left and the even on the right. This
+# is basically an artefact of the text extraction, and of the rotation
+# of the page, I guess. There is no way we can check this blindly.
+
+is_deeply(extract_pdf($imp->outfile),
+          [
+           [ 1, undef ],
+           [ 2, undef ],
+           [ 3, undef ],
+           [ 17, 4 ],
+           [ 5, 16 ],
+           [ 15, 6 ],
+           [ 7, 14 ],
+           [ 13, 8 ],
+           [ 9, 12 ],
+           [ 11, 10]
+          ],
+          "Imposing 17 pages OK");
+
+move($imp->outfile, $outputdir)
+  or die "Cannot move " . $imp->outfile . " in " . $outputdir;
+diag "PDF 2down left in " . catfile($outputdir, basename($pdffile));
 
 
 # print Dumper($imp->page_sequence_for_booklet);
