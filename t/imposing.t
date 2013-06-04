@@ -1,6 +1,7 @@
 use strict;
 use warnings;
 use Test::More;
+use File::Temp;
 use File::Spec::Functions;
 use PDF::Imposition;
 use PDF::API2;
