@@ -203,8 +203,6 @@ is_deeply(extract_pdf($imp->outfile),
           ],
           "Imposing 18 pages OK");
 
-save_output($imp->outfile);
-
 $pdffile = create_pdf("2down", 1..17);
 $imp = PDF::Imposition->new(
                             file => $pdffile,
@@ -254,8 +252,6 @@ is_deeply(extract_pdf($imp->outfile),
            [ 11, 10]
           ],
           "Imposing 17 pages OK");
-
-save_output($imp->outfile);
 
 # print Dumper($imp->page_sequence_for_booklet);
           
