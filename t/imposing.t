@@ -34,9 +34,8 @@ diag "Using $testdir as test directory";
 unless (-d $testdir) {
     mkdir $testdir or die "cannot create $testdir => $!";
 }
-my $pdffile = File::Spec->catfile($testdir, "2up.pdf");
 
-create_pdf($pdffile, 1..4);
+my $pdffile = create_pdf("2up-4", 1..4);
 diag "using $pdffile";
 
 my $imp = PDF::Imposition->new(file => $pdffile);
@@ -49,7 +48,7 @@ is_deeply(extract_pdf($imp->outfile),
           ],
           "Simple imposition ok");
 
-create_pdf($pdffile, 1..20);
+$pdffile = create_pdf("2up-20", 1..20);
 $imp = PDF::Imposition->new(file => $pdffile);
 $imp->impose;
 is_deeply(extract_pdf($imp->outfile),
@@ -67,7 +66,7 @@ is_deeply(extract_pdf($imp->outfile),
           ],
           "Imposing 20 pages OK");
 
-create_pdf($pdffile, 1..16);
+$pdffile = create_pdf("2up-s4", 1..16);
 $imp = PDF::Imposition->new(file => $pdffile);
 $imp->signature(4);
 is($imp->signature, 4, "signature set at 4");
@@ -92,7 +91,7 @@ is_deeply(extract_pdf($imp->outfile),
 #                                                                      #
 ########################################################################
 
-create_pdf($pdffile, 1..19);
+$pdffile = create_pdf("2up-p19", 1..19);
 $imp = PDF::Imposition->new(file => $pdffile);
 $imp->impose;
 is_deeply(extract_pdf($imp->outfile),
@@ -110,7 +109,7 @@ is_deeply(extract_pdf($imp->outfile),
           ],
           "Imposing 19 pages OK");
 
-create_pdf($pdffile, 1..19);
+$pdffile = create_pdf("2up-p19-cover", 1..19);
 $imp = PDF::Imposition->new(file => $pdffile);
 $imp->cover(1);
 $imp->impose;
@@ -129,8 +128,7 @@ is_deeply(extract_pdf($imp->outfile),
           ],
           "Imposing 19 pages OK");
 
-
-create_pdf($pdffile, 1..18);
+$pdffile = create_pdf("2up-18", 1..18);
 $imp = PDF::Imposition->new(file => $pdffile);
 $imp->impose;
 is_deeply(extract_pdf($imp->outfile),
@@ -148,7 +146,7 @@ is_deeply(extract_pdf($imp->outfile),
           ],
           "Imposing 18 pages OK");
 
-create_pdf($pdffile, 1..18);
+$pdffile = create_pdf("2up-18-cover", 1..18);
 $imp = PDF::Imposition->new(file => $pdffile);
 $imp->cover(1);
 $imp->impose;
@@ -168,7 +166,7 @@ is_deeply(extract_pdf($imp->outfile),
           "Imposing 18 pages OK");
 
 
-create_pdf($pdffile, 1..17);
+$pdffile = create_pdf("2up-17", 1..17);
 $imp = PDF::Imposition->new(file => $pdffile);
 $imp->impose;
 is_deeply(extract_pdf($imp->outfile),
@@ -186,7 +184,7 @@ is_deeply(extract_pdf($imp->outfile),
           ],
           "Imposing 17 pages OK");
 
-create_pdf($pdffile, 1..17);
+$pdffile = create_pdf("2up-17-cover", 1..17);
 $imp = PDF::Imposition->new(file => $pdffile);
 $imp->cover(1);
 $imp->impose;
@@ -205,13 +203,9 @@ is_deeply(extract_pdf($imp->outfile),
           ],
           "Imposing 18 pages OK");
 
-move($imp->outfile, $outputdir)
-  or die "Cannot move " . $imp->outfile . " in " . $outputdir;
-diag "PDF 2up left in " . catfile($outputdir, basename($pdffile));
+save_output($imp->outfile);
 
-
-$pdffile = File::Spec->catfile($testdir, "2down.pdf");
-create_pdf($pdffile, 1..17);
+$pdffile = create_pdf("2down", 1..17);
 $imp = PDF::Imposition->new(
                             file => $pdffile,
                             schema => '2down',
@@ -238,7 +232,7 @@ is_deeply(extract_pdf($imp->outfile),
           ],
           "Imposing 17 pages OK");
 
-create_pdf($pdffile, 1..17);
+$pdffile = create_pdf("2down-17-cover", 1..17);
 $imp = PDF::Imposition->new(
                             file => $pdffile,
                             schema => '2down',
@@ -261,17 +255,17 @@ is_deeply(extract_pdf($imp->outfile),
           ],
           "Imposing 17 pages OK");
 
-
-move($imp->outfile, $outputdir)
-  or die "Cannot move " . $imp->outfile . " in " . $outputdir;
-diag "PDF 2down left in " . catfile($outputdir, basename($pdffile));
-
+save_output($imp->outfile);
 
 # print Dumper($imp->page_sequence_for_booklet);
           
 
 sub create_pdf {
     my ($filename, @pages) = @_;
+    unless ($filename =~ m/\.pdf$/) {
+        $filename .= ".pdf";
+    }
+    $filename = catfile($testdir, $filename);
     my $pdf = PDF::API2->new();
     # common settings
     $pdf->mediabox(500,500);
@@ -284,11 +278,12 @@ sub create_pdf {
         $text->text("Page $p");
     }
     $pdf->saveas($filename);
-    return;
+    return $filename;
 }
 
 sub extract_pdf {
     my $pdf = shift;
+    save_output($pdf);
     my $txt = $pdf;
     $txt =~ s/\.pdf$/.txt/;
     system(pdftotext => $pdf) == 0 or die 'pdftotext failed $?';
@@ -316,4 +311,12 @@ sub extract_pages {
         }
     }
     return \@out;
+}
+
+sub save_output {
+    my $pdf = shift;
+    diag "PDF " . basename($pdf) . " left in " . catfile($outputdir,
+                                                         basename($pdf));
+    copy($pdf, $outputdir)
+      or die "Cannot move $pdf in $outputdir";
 }
