@@ -8,7 +8,6 @@ use File::Copy;
 use PDF::Imposition;
 use PDF::API2;
 use Data::Dumper;
-use Cwd;
 
 # unfortunately, CAM::PDF is not capable of extracting the text from
 # an imposed pdf, probably because of the nested pages, so they are
@@ -17,17 +16,24 @@ use Cwd;
 # anyway, being that the tests are still useful in development
 # environment, let's shell out.
 my $pdftotext = system('pdftotext', '-v');
-if ($pdftotext != 0) {
-    plan skip_all => q{pdftotext not available, I can't proceed};
-}
-else {
-    plan tests => 12;
-}
-
-my $testdir = File::Temp->newdir(CLEANUP => 0);
-my $outputdir = catdir(getcwd(), "t", "output");
+my $skipex;
+my $testdir = File::Temp->newdir(CLEANUP => 1);
+my $outputdir = catdir("t", "output");
 unless (-d $outputdir) {
     mkdir $outputdir or die "Cannot create $outputdir $!";
+}
+
+if ($pdftotext != 0) {
+    plan tests => 24;
+    $skipex = 1;
+    diag "It appears that pdftotext is not available.";
+    diag "I'm just testing that the imposer produces something";
+    diag "For a full visual testing, you have to look at the file left" .
+      " in $outputdir";
+    diag "Anyway, some testing is way better than no test at all";
+} 
+else {
+    plan tests => 48;    
 }
 
 diag "Using $testdir as test directory";
@@ -41,17 +47,18 @@ diag "using $pdffile";
 my $imp = PDF::Imposition->new(file => $pdffile);
 $imp->impose;
 
-is_deeply(extract_pdf($imp->outfile),
+test_is_deeply($imp,
           [
            [ 4, 1 ],
            [ 2, 3 ]
           ],
-          "Simple imposition ok");
+          "Simple imposition ok", 4);
 
 $pdffile = create_pdf("2up-20", 1..20);
 $imp = PDF::Imposition->new(file => $pdffile);
 $imp->impose;
-is_deeply(extract_pdf($imp->outfile),
+print "****" . $imp->outfile, "\n";
+test_is_deeply($imp,
           [
            [ 20, 1 ],
            [ 2, 19 ],
@@ -64,14 +71,13 @@ is_deeply(extract_pdf($imp->outfile),
            [ 12, 9 ],
            [ 10, 11]
           ],
-          "Imposing 20 pages OK");
+          "Imposing 20 pages OK", 20);
 
 $pdffile = create_pdf("2up-s4", 1..16);
 $imp = PDF::Imposition->new(file => $pdffile);
 $imp->signature(4);
-is($imp->signature, 4, "signature set at 4");
 $imp->impose;
-is_deeply(extract_pdf($imp->outfile),
+test_is_deeply($imp,
           [
            [4,  1],
            [2 , 3],
@@ -82,7 +88,7 @@ is_deeply(extract_pdf($imp->outfile),
            [16, 13],
            [14, 15]
           ],
-          "Signatures appear to work");
+          "Signatures appear to work", 16);
 
 ########################################################################
 #                                                                      #
@@ -94,9 +100,9 @@ is_deeply(extract_pdf($imp->outfile),
 $pdffile = create_pdf("2up-p19", 1..19);
 $imp = PDF::Imposition->new(file => $pdffile);
 $imp->impose;
-is_deeply(extract_pdf($imp->outfile),
+test_is_deeply($imp,
           [
-           [ 1, undef ],
+           [ 1,  ],
            [ 2, 19 ],
            [ 18, 3 ],
            [ 4, 17 ],
@@ -107,16 +113,16 @@ is_deeply(extract_pdf($imp->outfile),
            [ 12, 9 ],
            [ 10, 11]
           ],
-          "Imposing 19 pages OK");
+          "Imposing 19 pages OK", 19);
 
 $pdffile = create_pdf("2up-p19-cover", 1..19);
 $imp = PDF::Imposition->new(file => $pdffile);
 $imp->cover(1);
 $imp->impose;
-is_deeply(extract_pdf($imp->outfile),
+test_is_deeply($imp,
           [
            [ 19, 1 ],
-           [ 2, undef ],
+           [ 2,  ],
            [ 18, 3 ],
            [ 4, 17 ],
            [ 16, 5 ],
@@ -126,15 +132,15 @@ is_deeply(extract_pdf($imp->outfile),
            [ 12, 9 ],
            [ 10, 11]
           ],
-          "Imposing 19 pages OK");
+          "Imposing 19 pages OK", 19);
 
 $pdffile = create_pdf("2up-18", 1..18);
 $imp = PDF::Imposition->new(file => $pdffile);
 $imp->impose;
-is_deeply(extract_pdf($imp->outfile),
+test_is_deeply($imp,
           [
-           [ 1, undef ],
-           [ 2, undef ],
+           [ 1,  ],
+           [ 2,  ],
            [ 18, 3 ],
            [ 4, 17 ],
            [ 16, 5 ],
@@ -144,17 +150,17 @@ is_deeply(extract_pdf($imp->outfile),
            [ 12, 9 ],
            [ 10, 11]
           ],
-          "Imposing 18 pages OK");
+          "Imposing 18 pages OK", 18);
 
 $pdffile = create_pdf("2up-18-cover", 1..18);
 $imp = PDF::Imposition->new(file => $pdffile);
 $imp->cover(1);
 $imp->impose;
-is_deeply(extract_pdf($imp->outfile),
+test_is_deeply($imp,
           [
            [ 18, 1 ],
-           [ 2, undef ],
-           [ 3, undef ],
+           [ 2,  ],
+           [ 3,  ],
            [ 4, 17 ],
            [ 16, 5 ],
            [ 6, 15 ],
@@ -163,17 +169,17 @@ is_deeply(extract_pdf($imp->outfile),
            [ 12, 9 ],
            [ 10, 11]
           ],
-          "Imposing 18 pages OK");
+          "Imposing 18 pages OK", 18);
 
 
 $pdffile = create_pdf("2up-17", 1..17);
 $imp = PDF::Imposition->new(file => $pdffile);
 $imp->impose;
-is_deeply(extract_pdf($imp->outfile),
+test_is_deeply($imp,
           [
-           [ 1, undef ],
-           [ 2, undef ],
-           [ 3, undef ],
+           [ 1,  ],
+           [ 2,  ],
+           [ 3,  ],
            [ 4, 17 ],
            [ 16, 5 ],
            [ 6, 15 ],
@@ -182,18 +188,18 @@ is_deeply(extract_pdf($imp->outfile),
            [ 12, 9 ],
            [ 10, 11]
           ],
-          "Imposing 17 pages OK");
+          "Imposing 17 pages OK", 17);
 
 $pdffile = create_pdf("2up-17-cover", 1..17);
 $imp = PDF::Imposition->new(file => $pdffile);
 $imp->cover(1);
 $imp->impose;
-is_deeply(extract_pdf($imp->outfile),
+test_is_deeply($imp,
           [
            [ 17, 1 ],
-           [ 2, undef ],
-           [ 3, undef ],
-           [ 4, undef ],
+           [ 2,  ],
+           [ 3,  ],
+           [ 4,  ],
            [ 16, 5 ],
            [ 6, 15 ],
            [ 14, 7 ],
@@ -201,7 +207,7 @@ is_deeply(extract_pdf($imp->outfile),
            [ 12, 9 ],
            [ 10, 11]
           ],
-          "Imposing 18 pages OK");
+          "Imposing 18 pages OK", 17);
 
 $pdffile = create_pdf("2down", 1..17);
 $imp = PDF::Imposition->new(
@@ -215,11 +221,11 @@ $imp->impose;
 # is basically an artefact of the text extraction, and of the rotation
 # of the page, I guess. There is no way we can check this blindly.
 
-is_deeply(extract_pdf($imp->outfile),
+test_is_deeply($imp,
           [
-           [ 1, undef ],
-           [ 2, undef ],
-           [ 3, undef ],
+           [ 1,  ],
+           [ 2,  ],
+           [ 3,  ],
            [ 17, 4 ],
            [ 5, 16 ],
            [ 15, 6 ],
@@ -228,7 +234,7 @@ is_deeply(extract_pdf($imp->outfile),
            [ 9, 12 ],
            [ 11, 10]
           ],
-          "Imposing 17 pages OK");
+          "Imposing 17 pages OK", 17);
 
 $pdffile = create_pdf("2down-17-cover", 1..17);
 $imp = PDF::Imposition->new(
@@ -238,12 +244,12 @@ $imp = PDF::Imposition->new(
                            );
 
 $imp->impose;
-is_deeply(extract_pdf($imp->outfile),
+test_is_deeply($imp,
           [
            [ 1 ,17 ],
-           [ 2, undef ],
-           [ 3, undef ],
-           [ 4, undef ],
+           [ 2,  ],
+           [ 3,  ],
+           [ 4,  ],
            [ 5, 16 ],
            [ 15, 6 ],
            [ 7, 14 ],
@@ -251,10 +257,32 @@ is_deeply(extract_pdf($imp->outfile),
            [ 9, 12 ],
            [ 11, 10]
           ],
-          "Imposing 17 pages OK");
+          "Imposing 17 pages OK", 17);
 
 # print Dumper($imp->page_sequence_for_booklet);
-          
+
+$pdffile = create_pdf("2x4x2", 1..32);
+$imp = PDF::Imposition->new(
+                            file => $pdffile,
+                            schema => '2x4x2',
+                           );
+$imp->impose;
+
+test_is_deeply($imp,
+          [
+           [ '8', '9', '16', '1' ],
+           [ '10', '7', '2', '15' ], 
+
+           [ '6', '11', '14', '3' ], 
+           [ '12', '5', '4', '13' ], 
+
+           [ '24', '25', '32', '17' ], 
+           [ '26', '23', '18', '31' ], 
+
+           [ '22', '27', '30', '19' ],
+           [ '28', '21', '20', '29' ] 
+          ], "2x4x2 appears to work", 32);
+
 
 sub create_pdf {
     my ($filename, @pages) = @_;
@@ -299,12 +327,11 @@ sub extract_pages {
     foreach my $p (@pages) {
         my @nums;
         # this is (of course) very fragile;
-        if ($p =~ m/\s*(Page (\d+))?\s*?\n\n\s*(Page (\d+))?\s*/s) {
-            push @out, [$2, $4];
+
+        while ($p =~ m/\s*(Page (\d+))\s*/gs) {
+            push @nums, $2;
         }
-        else {
-            die "Unparsable chunk: $p\n";
-        }
+        push @out, \@nums;
     }
     return \@out;
 }
@@ -315,4 +342,29 @@ sub save_output {
                                                          basename($pdf));
     copy($pdf, $outputdir)
       or die "Cannot move $pdf in $outputdir";
+}
+
+sub test_is_deeply {
+    my ($imposer, $seq, $message, $pages) = @_;
+    ok($imposer->outfile, "output is here");
+    ok((-f $imposer->outfile), "File created");
+    unless ($skipex) {
+        is_deeply(extract_pdf($imposer->outfile), $seq, $message);
+    }
+    if ($pages && !$skipex) {
+        all_pages_present($imposer->outfile, $pages);
+    }
+    unlink $imposer->outfile or die "Cannot unlink outfile $!";
+}
+
+sub all_pages_present {
+    my ($pdf, $pages) = @_;
+    my @array = @{ extract_pdf($pdf) };
+    my @expected = (1 .. $pages);
+    my @result;
+    foreach my $physical (@array) {
+        push @result, @$physical;
+    }
+    @result = sort { $a <=> $b } @result;
+    is_deeply \@result, \@expected, "All pages present in $pdf";
 }
