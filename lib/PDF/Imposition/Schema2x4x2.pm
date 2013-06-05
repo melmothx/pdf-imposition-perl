@@ -3,6 +3,24 @@ use strict;
 use warnings;
 use base qw/PDF::Imposition::Schema/;
 
+=head1 NAME PDF::Imposition::Schema2x4x2
+
+=head1 SYNOPSIS
+
+
+
+=head1 METHODS
+
+=over 4
+
+=item  impose
+
+Do the job and leave the output in C<$self->outfile>
+
+=back
+
+=cut
+
 sub impose {
     my $self = shift;
     # set the mediabox doubling them

@@ -12,7 +12,9 @@ use File::Copy;
 
 =head1 SUBROUTINES/METHODS
 
-=head2 new(file => "file.pdf", suffix => "-imp", cover => 0, [...])
+=head2 Constructor 
+
+=head3 new(file => "file.pdf", suffix => "-imp", cover => 0, [...])
 
 Costructor. Options should be passed as list. The options are the same
 of the above accessors, so passing C<$self->file("file.pdf")> is
@@ -128,13 +130,14 @@ Returns an hashref with the original pdf dimensions in points.
 
   { w => 800, h => 600 }
 
+=head3 orig_width
+
+=head3 orig_height
+
 =head3 total_pages
 
 Returns the number of pages
 
-=head3 orig_width
-
-=head3 orig_height
 
 =cut
 
