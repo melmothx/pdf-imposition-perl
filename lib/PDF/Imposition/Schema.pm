@@ -224,4 +224,23 @@ sub out_pdf_obj {
     return $self->{_output_pdf_obj};
 }
 
+
+=head3 get_imported_page($pagenumber)
+
+Retrieve the page form object from the input pdf to the output pdf,
+and return it. The method return undef if the page is out of range.
+
+=cut
+
+
+sub get_imported_page {
+    my ($self, $page) = @_;
+    if ((!defined $page) || ($page <= 0) || ($page > $self->total_pages)) {
+        return undef;
+    }
+    return  $self->out_pdf_obj->importPageIntoForm($self->in_pdf_obj, $page)
+}
+
+
+
 1;
