@@ -1,5 +1,8 @@
 Revision history for PDF-Imposition
 
-0.01    Date/time
-        First version, released on an unsuspecting world.
+2013-06-06      Marco Pessotto <melmothx@gmail.com>
+
+	Release 0.01
+
+        Initial release on CPAN. It ships schemas 2up, 2down, 2x4x2
 
