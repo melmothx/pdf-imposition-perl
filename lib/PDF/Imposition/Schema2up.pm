@@ -84,8 +84,24 @@ sub _find_signature {
 }
 
 
+=head3 cover
 
+This option is only used when the 2up or 2down schema is asked, i.e.,
+when a variable signature is needed. Often it happens that we want the
+last page of the pdf to be the last on the physical booklet. The
+original algorithm just fills the signature with blank pages. If
+C<cover> is set to a true value, the last page of the logical pdf will
+be placed on the last page of the last signature.
 
+=cut
+
+sub cover {
+    my $self = shift;
+    if (@_ == 1) {
+        $self->{cover} = shift;
+    }
+    return $self->{cover};
+}
 
 =head3 page_sequence_for_booklet($pages, $signature)
 
