@@ -9,16 +9,50 @@ use PDF::API2;
 use File::Temp ();
 use File::Copy;
 
+=head1 NAME
 
-=head1 SUBROUTINES/METHODS
+PDF::Imposition::Schema - Base class for the imposition schemas.
+
+=head1 SYNOPSIS
+
+Please don't use this class directly, but use L<PDF::Imposition> or
+the right schema class, which inherit from this (which in turns
+defines the shared methods). B<This class does not do anything useful
+by itself, but only provides some shared methods>.
+
+    use PDF::Imposition;
+    my $imposer = PDF::Imposition->new(file => "test.pdf",
+                                       # either use 
+                                       outfile => "out.pdf",
+                                       # or suffix
+                                       suffix => "-2up"
+                                      );
+or 
+
+    use PDF::Imposition;
+    my $imposer = PDF::Imposition->new();
+    $imposer->file("test.pdf");
+    
+    $imposer->outfile("out.pdf");
+    # or
+    $imposer->suffix("-imp");
+  
+=cut
+
+
+
+
+
+=head1 METHODS
 
 =head2 Constructor 
 
 =head3 new(file => "file.pdf", suffix => "-imp", cover => 0, [...])
 
 Costructor. Options should be passed as list. The options are the same
-of the above accessors, so passing C<$self->file("file.pdf")> is
-exactly the same of passing C<$self->new(file => "file.pdf")>.
+of the read-write accessors describe below, so passing
+C<$self->file("file.pdf")> is exactly the same of passing
+C<$self->new(file => "file.pdf")>.
 
 =cut
 
@@ -32,13 +66,14 @@ sub new {
     bless $self, $class;
 }
 
-=head2 Accessors
+=head2 Read/write accessors
 
-All the following accessors accept an argument, which sets the value.
+All the following accessors accept an argument, which sets the
+value.
 
 =head3 file
 
-Unsurprisingly, the input file, which should exist.
+Unsurprisingly, the input file, which must exist.
 
 =cut
 
@@ -101,7 +136,7 @@ sub suffix {
 
 =head2 Accessors
 
-CAM::PDF is used to get the properties.
+L<CAM::PDF> is used to get the properties.
 
 =head3 dimensions
 
@@ -224,5 +259,13 @@ sub get_imported_page {
 }
 
 
+
+=head1 LICENSE
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of either: the GNU General Public License as
+published by the Free Software Foundation; or the Artistic License.
+
+=cut
 
 1;

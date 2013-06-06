@@ -23,18 +23,34 @@ our $VERSION = '0.01';
 
 This module is meant to simplify the so-called imposition, i.e.,
 rearrange the pages of a PDF to get it ready to be printed and folded,
-with more logical pages placed on the sheet, on recto and verso.
+with more logical pages placed on the sheet, usually (but not
+exclusively) on recto and verso.
+
+This is what the routine looks like:
 
     use PDF::Imposition;
-    my $imposer = PDF::Imposition->new(file => "test.pdf", cover => 1);
+    my $imposer = PDF::Imposition->new(file => "test.pdf",
+                                       schema => "2up");
     $imposer->signature(50); # or $imposer->signature("50-80");
     $imposer->impose;
     print "Output left in " . $imposer->outfile;
 
 
+Please note that you don't pass the PDF dimensions (which are
+extracted from the source PDF itself by the class, using the very
+first page: if you want imposition, I do the resonable assumption you
+have all the pages with the same dimensions).
+
+The signature call (or named argument to the constructor) is used only
+but the schemas which use dynamical signatures
+(L<PDF::Schema::Imposition::2up> and
+(L<PDF::Schema::Imposition::2down>) and just ignored by the others.
+
 =head1 METHODS
 
-=head2 new ( file => $file, schema => $schema, ...)
+=head2 Constructor
+
+=head3 new ( file => $file, schema => $schema, ...)
 
 This is the only method provided by this class. The constructor
 doesn't return itself, but instead load, build and return a
