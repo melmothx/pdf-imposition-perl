@@ -264,3 +264,11 @@ sub get_imported_page {
 }
 
 1;
+
+=head1 SEE ALSO
+
+L<PDF::Imposition>
+
+=cut
+
+

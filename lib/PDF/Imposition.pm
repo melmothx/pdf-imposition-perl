@@ -30,8 +30,11 @@ This is what the routine looks like:
 
     use PDF::Imposition;
     my $imposer = PDF::Imposition->new(file => "test.pdf",
+                                       outfile => "out.pdf",
+                                       # or # suffix => "-imposed",
+                                       signature => "40-80",
+                                       cover => 0,
                                        schema => "2up");
-    $imposer->signature(50); # or $imposer->signature("50-80");
     $imposer->impose;
     print "Output left in " . $imposer->outfile;
 
@@ -40,11 +43,6 @@ Please note that you don't pass the PDF dimensions (which are
 extracted from the source PDF itself by the class, using the very
 first page: if you want imposition, I do the resonable assumption you
 have all the pages with the same dimensions).
-
-The signature call (or named argument to the constructor) is used only
-but the schemas which use dynamical signatures
-(L<PDF::Schema::Imposition::2up> and
-(L<PDF::Schema::Imposition::2down>) and just ignored by the others.
 
 =head1 METHODS
 
@@ -60,7 +58,55 @@ scenario).
 
 If you prefer, you can load the right class yourself.
 
+=head3 Options
+
+=over 4
+
+=item file
+
+The input file
+
+=item outfile
+
+The output file
+
+=item suffix
+
+The suffix of the output file (don't mix the two options).
+
+=item schema
+
+The schema to use.
+
+=over 4 
+
+=item 2up
+
+See L<PDF::Imposition::Schema2up>
+
+=item 2down
+
+See L<PDF::Imposition::Schema2down>
+
+=item 2x4x2
+
+See L<PDF::Imposition::Schema2x4x2>
+
+=back
+
+=item cover
+
+If the last logical page must be placed at the very end, B<after> the
+blank pages used to pad the signature. (C<2up> and C<2down> only).
+
+=item signature
+
+The signature (integer multiple of four or range): C<2up> and C<2down> only.
+
+=back
+
 =cut
+
 
 sub new {
     my ($class, %options) = @_;
@@ -83,7 +129,7 @@ Marco Pessotto, C<< <melmothx at gmail.com> >>
 =head1 BUGS
 
 Please report any bugs or feature requests to the author's email. If
-you find a bug, please provide a minimal muse file which reproduces
+you find a bug, please provide a minimal example file which reproduces
 the problem (so I can add it to the test suite).
 
 =head1 SUPPORT
@@ -110,6 +156,14 @@ L<http://www.ctan.org/pkg/pdfpages>
 
 L<http://www2.warwick.ac.uk/fac/sci/statistics/staff/academic-research/firth/software/pdfjam/>
 (buil on the top of psutils)
+
+=item ConTeXt
+
+L<http://wiki.contextgarden.net/Imposition>
+
+The names of schemas are taken straight from the ConTeXt one, as
+described in the Book I<Layouts in context>, by Willi Egger, Hans
+Hagen and Taco Hoekwater, 2011.
 
 =back
 

@@ -7,7 +7,49 @@ use base qw/PDF::Imposition::Schema/;
 
 =head1 SYNOPSIS
 
+    use PDF::Imposition::Schema2x4x2;
+    my $imposer = PDF::Imposition::Schema2x4x2->new(
+                                                    file => "test.pdf",
+                                                    output => "out.pdf",
+                                                    );
+    $imposer->impose;
 
+The output pdf will be in C<< $imposer->output >>
+
+=head1 SCHEMA EXPLANATION
+
+Fixed signature size of 16 pages, printed recto-verso on 2 sheets.
+
+Typical usage: print A5 on A3, or A6 on A4, then fold twice and cut
+the edges.
+
+Visualization (the prefix C<r> means logical page disposed
+upside-down -- rotated 180 degrees):
+
+
+     +------+------+    +------+------+
+     |      |      |    |      |      |
+     |  r9  |  r8  |    |  r7  | r10  |
+     |      |      |    |      |      |
+     +------+------+    +------+------+
+     |      |      |    |      |      |
+     |  16  |  1   |    |  2   | 15   |
+     |      |      |    |      |      |
+     +------+------+    +------+------+
+
+     +------+------+    +------+------+
+     |      |      |    |      |      |
+     | r11  | r6   |    |  r5  | r12  |
+     |      |      |    |      |      |
+     +------+------+    +------+------+
+     |      |      |    |      |      |
+     |  14  |  3   |    |  2   |  15  |
+     |      |      |    |      |      |
+     +------+------+    +------+------+
+
+
+To complete the block of 16 logical pages, blank pages are inserted if
+needed.
 
 =head1 METHODS
 
@@ -77,3 +119,11 @@ sub _compose_quadruple {
 }
 
 1;
+
+=head1 SEE ALSO
+
+L<PDF::Imposition>
+
+=cut
+
+

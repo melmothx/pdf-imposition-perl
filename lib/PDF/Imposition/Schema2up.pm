@@ -288,3 +288,10 @@ sub impose {
 }
 
 1;
+
+=head1 SEE ALSO
+
+L<PDF::Imposition>
+
+=cut
+
