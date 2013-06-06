@@ -1,8 +1,11 @@
 #!/usr/bin/env perl
+
+# written by Marco Pessotto
+
 use strict;
 use warnings;
-use FindBin;
-use lib "$FindBin::Bin/../lib";
+# use FindBin;
+# use lib "$FindBin::Bin/../lib";
 use PDF::Imposition;
 use Getopt::Long;
 use Pod::Usage;
@@ -100,4 +103,11 @@ show this help
 If outfile is not provided, it will use the suffix to create the
 output filename.
 
-EOF
+=head1 LICENSE
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of either: the GNU General Public License as
+published by the Free Software Foundation; or the Artistic License.
+
+=cut
+
