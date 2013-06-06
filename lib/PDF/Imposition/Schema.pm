@@ -134,9 +134,14 @@ sub suffix {
 }
 
 
-=head2 Accessors
+=head2 Internal accessors
 
-L<CAM::PDF> is used to get the properties.
+The following methods are used internally but documented for schema's
+authors.
+
+L<CAM::PDF> is used to get the properties, and L<PDF::API2> to arrange
+the pages. L<CAM::PDF> is also used to convert PDF 1.6-1.5 to PDF
+v1.4, which it's the only version L<PDF::API2> understands.
 
 =head3 dimensions
 
@@ -257,15 +262,5 @@ sub get_imported_page {
     }
     return  $self->out_pdf_obj->importPageIntoForm($self->in_pdf_obj, $page)
 }
-
-
-
-=head1 LICENSE
-
-This program is free software; you can redistribute it and/or modify
-it under the terms of either: the GNU General Public License as
-published by the Free Software Foundation; or the Artistic License.
-
-=cut
 
 1;

@@ -7,11 +7,80 @@ use base "PDF::Imposition::Schema";
 
 PDF::Imposition::Schema2up - Imposition schema 2up (booklet)
 
+=head1 SYNOPSIS
+
+    use PDF::Imposition::Schema2up;
+    my $imposer = PDF::Imposition::Schema2up->new(
+                                                  signature => "10-20",
+                                                  file => "test.pdf",
+                                                  output => "out.pdf",
+                                                  cover => 1,
+                                                 );
+    # or call the methods below to set the values, and then call:
+    $imposer->impose;
+
+The output pdf will be in C<$imposer->output>
+
+=head1 SCHEMA EXPLANATION
+
+This schema is a variable and dynamic method. The signature, i.e., the
+booklets which compose the document, are not fixed-sized, but can be
+altered. The purpose is to have 1 or more booklets that you print
+recto-verso and just fold to have your home-made book (this schema is
+aimed to DIY people).
+
+Say you have a text with 60 pages in A5: you would print it on A4,
+double-side, take the pile out of the printer, fold it and clip it.
+
+The schema looks like (for a signature of 8 pages on 2 sheets):
+
+       RECTO S.1     VERSO S.1
+     +-----+-----+  +-----+-----+ 
+     |     |     |  |     |     | 
+     |  8  |  1  |  |  2  |  7  | 
+     |     |     |  |     |     | 
+     +-----+-----+  +-----+-----+ 
+
+       RECTO S.2     VERSO S.2
+     +-----+-----+  +-----+-----+
+     |     |     |  |     |     |
+     |  6  |  3  |  |  4  |  5  |
+     |     |     |  |     |     |
+     +-----+-----+  +-----+-----+
+
+=head1 METHODS
+
+=head2 Public methods
+
 =head3 signature
 
-The signature, must be a multiple of 4, or a range, like 20-100. If a
-range is selected, the signature is determined to minize the white
-pages left on the last signature.
+The signature, must be a multiple of 4, or a range, like the string
+"20-100". If a range is selected, the signature is determined
+heuristically to minimize the white pages left on the last signature.
+The wider the range, the best the results.
+
+This is useful if you are doing batch processing, and you don't know
+the number of page in advance (so you can't tweak the source pdf to
+have a suitable number of page via text-block dimensions or font
+changes).
+
+Typical case: you define a signature of 60 pages, and your PDF happens
+to have 61 pages. How unfortunate, and you just can't put out a PDF
+with 59 blank pages. The manual solution is to change something in the
+document to get it under 60 pages, but this is not always viable or
+desirable. So you define a dynamic range for signature, like 20-60,
+(so the signature will vary between 20 and 60) and the routine will
+find the best one, which happens to be 32 (with 3 blank pages).
+
+If no signature is specified, the whole text will be imposed on a
+single signature, regardeless of its size.
+
+Es.
+
+  $imposer->signature("20-60");
+
+Keep in mind that a signature with more than 100 pages is not suitable
+to be printed and folded at home (too thick).
 
 =cut
 
@@ -93,6 +162,10 @@ original algorithm just fills the signature with blank pages. If
 C<cover> is set to a true value, the last page of the logical pdf will
 be placed on the last page of the last signature.
 
+Es.
+
+  $imposer->cover(1);
+
 =cut
 
 sub cover {
@@ -103,10 +176,19 @@ sub cover {
     return $self->{cover};
 }
 
+=head3 impose
+
+Do the job and leave the output in C<< $self->outfile >>
+
+=cut
+
+=head2 Internal (but documented) methods
+
 =head3 page_sequence_for_booklet($pages, $signature)
 
-Algorithm taken from psbook (Angus J. C. Duggan 1991-1995). Used
-internally.
+Algorithm taken/stolen from C<psbook> (Angus J. C. Duggan 1991-1995).
+The C<psutils> are still a viable solution if you want to go with
+PDF->PS->PDF route.
 
 =cut
 
@@ -175,14 +257,6 @@ sub page_sequence_for_booklet {
     }
     return \@out;
 }
-
-=head2 Main method
-
-=head3 impose
-
-Do the job and leave the output in C<$self->outfile>
-
-=cut
 
 sub impose {
     my $self = shift;
