@@ -29,4 +29,10 @@ WriteMakefile(
                  },
     dist  => { COMPRESS => 'gzip -9f', SUFFIX => 'gz', },
     clean => { FILES => 'PDF-Imposition-*' },
+    META_MERGE => {
+                   resources => {
+                                 repository => 'https://gitorious.org/perl-pdf-imposition'
+                                },
+                  },
+
 );

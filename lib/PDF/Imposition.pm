@@ -138,6 +138,10 @@ You can find documentation for this module with the perldoc command.
 
     perldoc PDF::Imposition
 
+=head1 REPOSITORY
+
+L<https://gitorious.org/perl-pdf-imposition>
+
 =head1 SEE ALSO
 
 =over 4
@@ -166,6 +170,13 @@ described in the Book I<Layouts in context>, by Willi Egger, Hans
 Hagen and Taco Hoekwater, 2011.
 
 =back
+
+=head1 TODO
+
+The idea is to provide a wide range of imposition schemas (at least
+the same provided by ConTeXt). This could require some time. If you
+want to contribute, feel free to fork the repository and send a pull
+request or a patch (please include documentation and at some tests).
 
 =head1 LICENSE
 
