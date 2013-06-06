@@ -5,8 +5,9 @@ use FindBin;
 use lib "$FindBin::Bin/../lib";
 use PDF::Imposition;
 use Getopt::Long;
+use Pod::Usage;
 
-my ($signature, $help, $suffix,$cover);
+my ($signature, $help, $suffix, $cover);
 
 my $schema = '2up';
 
@@ -30,49 +31,73 @@ my $imposer = PDF::Imposition->new(file => $file, schema => $schema);
 if ($signature) {
     $imposer->signature($signature);
 }
+
 if ($outfile) {
     $imposer->outfile($outfile);
 }
-if ($suffix) {
+elsif ($suffix) {
     $imposer->suffix('-' . $suffix);
 }
+
 if ($cover) {
     $imposer->cover(1);
 }
-warn "Output on " . $imposer->outfile . "\n";
+
+print "Output on " . $imposer->outfile . "\n";
 if (-f $imposer->outfile) {
     unlink $imposer->outfile or die "Couldn't remove old output! $!";
 }
+
 $imposer->impose;
 # and that's all
 print "Imposed PDF left in " . $imposer->outfile . "\n";
 
 sub give_help {
-    print << "EOF";
+    pod2usage();
+    exit 2;
+}
 
-Usage: $0 infile.pdf [outfile.pdf]
+=head1 NAME
 
-Options:
+pdf-impose.pl -- script to impose a PDF using the L<PDF::Imposition> class.
 
-  --schema <string>
-    The schema to use: defaults to 2up
+=head1 SYNOPSIS
 
-  --cover
-    Boolean
+  pdf-impose infile.pdf [outfile.pdf]
 
-  --signature | --sig | -s <num>
-    <num> must be a multiple of 4.
+This script is a simple wrapper around L<PDF::Imposition>. Refer to
+the perldoc documentation (C<perldoc PDF::Imposition>) for details
+about the options.
 
-  --suffix <string>
-    defaults to '-imp'
+=head2 Options:
 
-  --help
-    show this help
+=over 4
+
+=item  --schema 2up | 2down | 2x4x2
+
+The schema to use: defaults to 2up. See perldoc PDF::Imposition
+for details about the available schemas.
+
+=item  --cover
+
+Boolean
+
+=item --signature | --sig | -s <num>
+
+<num> must be a multiple of 4.
+
+=item --suffix <string> 
+
+defaults to 'imp'. The dash is automatically added, to avoid
+confusing it with options. If you want more control, pass the
+desired output file as second argument to the script.
+
+=item --help
+show this help
+
+=back
 
 If outfile is not provided, it will use the suffix to create the
 output filename.
 
-
 EOF
-    exit 2;
-}

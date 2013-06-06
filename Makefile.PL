@@ -26,6 +26,7 @@ WriteMakefile(
                   'File::Copy' => 0,
                   'Module::Load' => 0,
                   'File::Basename' => 0,
+                  'Pod::Usage' => 0,
                  },
     dist  => { COMPRESS => 'gzip -9f', SUFFIX => 'gz', },
     clean => { FILES => 'PDF-Imposition-*' },
