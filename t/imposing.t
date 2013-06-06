@@ -28,7 +28,7 @@ if ($pdftotext != 0) {
     $skipex = 1;
     diag "It appears that pdftotext is not available.";
     diag "I'm just testing that the imposer produces something";
-    diag "For a full visual testing, you have to look at the file left" .
+    diag "For a full visual testing, you have to look at the files left" .
       " in $outputdir";
     diag "Anyway, some testing is way better than no test at all";
 } 
