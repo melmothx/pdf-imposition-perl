@@ -90,7 +90,7 @@ sub file {
 sub _tmp_dir {
     my $self = shift;
     unless ($self->{_tmp_dir}) {
-        $self->{_tmp_dir} = File::Temp->newdir(CLEANUP => 0);
+        $self->{_tmp_dir} = File::Temp->newdir(CLEANUP => 1);
     }
     return $self->{_tmp_dir};
 }

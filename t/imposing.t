@@ -290,6 +290,7 @@ sub create_pdf {
         $filename .= ".pdf";
     }
     $filename = catfile($testdir, $filename);
+    # print "Using $testdir";
     my $pdf = PDF::API2->new();
     # common settings
     $pdf->mediabox(500,500);
