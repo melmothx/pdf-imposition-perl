@@ -11,7 +11,7 @@ PDF::Imposition::Schema2down - Imposition schema 2down (booklet with binding on 
 =head1 SYNOPSIS
 
 This class inherit everything from L<PDF::Imposition::Schema2up> and
-only alter the C<impose> method to rotate the pages by 90 degrees.
+only alters the C<impose> method to rotate the pages by 90 degrees.
 Please refer to the parent class for method documentation.
 
 =head1 SCHEMA EXPLANATION
