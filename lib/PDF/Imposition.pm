@@ -12,11 +12,11 @@ PDF::Imposition - Perl module to manage the PDF imposition
 
 =head1 VERSION
 
-Version 0.01
+Version 0.03
 
 =cut
 
-our $VERSION = '0.02';
+our $VERSION = '0.03';
 
 
 =head1 SYNOPSIS
@@ -41,7 +41,7 @@ This is what the routine looks like:
 
 Please note that you don't pass the PDF dimensions (which are
 extracted from the source PDF itself by the class, using the very
-first page: if you want imposition, I do the resonable assumption you
+first page: if you want imposition, I do the reasonable assumption you
 have all the pages with the same dimensions).
 
 =head1 METHODS
