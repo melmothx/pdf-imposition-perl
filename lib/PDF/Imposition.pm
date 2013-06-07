@@ -92,6 +92,11 @@ See L<PDF::Imposition::Schema2down>
 
 See L<PDF::Imposition::Schema2x4x2>
 
+=item 2side
+
+See L<PDF::Imposition::Schema2side>
+
+
 =back
 
 =item cover

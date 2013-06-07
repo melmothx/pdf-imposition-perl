@@ -73,7 +73,7 @@ about the options.
 
 =over 4
 
-=item  --schema 2up | 2down | 2x4x2
+=item  --schema 2up | 2down | 2x4x2 | 2side
 
 The schema to use: defaults to 2up. See perldoc PDF::Imposition
 for details about the available schemas.

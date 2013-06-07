@@ -3,6 +3,7 @@ Changes
 lib/PDF/Imposition.pm
 lib/PDF/Imposition/Schema.pm
 lib/PDF/Imposition/Schema2down.pm
+lib/PDF/Imposition/Schema2side.pm
 lib/PDF/Imposition/Schema2up.pm
 lib/PDF/Imposition/Schema2x4x2.pm
 Makefile.PL

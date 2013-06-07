@@ -4,7 +4,8 @@ Revision history for PDF-Imposition
 
 	Release 0.04
 
-	The changelog, which was missing the previous entry
+	Fixed the changelog, which was missing the previous entry.
+	Added the new schema 2side (like "psnup -2").
 
 2013-06-07      Marco Pessotto <melmothx@gmail.com>
 

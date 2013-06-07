@@ -24,7 +24,7 @@ unless (-d $outputdir) {
 }
 
 if ($pdftotext != 0) {
-    plan tests => 24;
+    plan tests => 26;
     $skipex = 1;
     diag "It appears that pdftotext is not available.";
     diag "I'm just testing that the imposer produces something";
@@ -33,7 +33,7 @@ if ($pdftotext != 0) {
     diag "Anyway, some testing is way better than no test at all";
 } 
 else {
-    plan tests => 48;    
+    plan tests => 52;
 }
 
 diag "Using $testdir as test directory";
@@ -283,6 +283,18 @@ test_is_deeply($imp,
            [ '28', '21', '20', '29' ] 
           ], "2x4x2 appears to work", 32);
 
+$pdffile = create_pdf("2side", 1..7);
+$imp = PDF::Imposition->new(
+                            file => $pdffile,
+                            schema => '2side',
+                           );
+$imp->impose;
+test_is_deeply($imp,
+               [
+                [ 1, 2], [3,4], [5,6], [7]
+               ],
+               "2 side works", 7);
+
 
 sub create_pdf {
     my ($filename, @pages) = @_;
@@ -342,7 +354,7 @@ sub save_output {
     diag "PDF " . basename($pdf) . " left in " . catfile($outputdir,
                                                          basename($pdf));
     copy($pdf, $outputdir)
-      or die "Cannot move $pdf in $outputdir";
+      or die "Cannot move $pdf in $outputdir $!";
 }
 
 sub test_is_deeply {
