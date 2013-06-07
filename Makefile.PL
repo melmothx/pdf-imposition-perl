@@ -16,6 +16,7 @@ WriteMakefile(
     },
     BUILD_REQUIRES => {
         'Test::More' => 0,
+        'Try::Tiny' => 0,
     },
     PREREQ_PM => {
                   'CAM::PDF' => 1.58,
