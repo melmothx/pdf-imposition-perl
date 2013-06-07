@@ -2,6 +2,12 @@ Revision history for PDF-Imposition
 
 2013-06-07      Marco Pessotto <melmothx@gmail.com>
 
+	Release 0.04
+
+	The changelog, which was missing the previous entry
+
+2013-06-07      Marco Pessotto <melmothx@gmail.com>
+
 	Release 0.03
 
 	Fixed missing prerequisite (Try::Tiny) in the Makefile
