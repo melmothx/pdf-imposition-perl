@@ -6,7 +6,6 @@ use Test::More;
 use File::Spec::Functions;
 use PDF::Imposition;
 use Data::Dumper;
-use Try::Tiny;
 use CAM::PDF;
 use PDF::API2;
 
