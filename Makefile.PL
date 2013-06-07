@@ -28,6 +28,7 @@ WriteMakefile(
                   'File::Basename' => 0,
                   'Pod::Usage' => 0,
                  },
+    EXE_FILES => [ 'bin/pdf-impose.pl' ],
     dist  => { COMPRESS => 'gzip -9f', SUFFIX => 'gz', },
     clean => { FILES => 'PDF-Imposition-*' },
     META_MERGE => {

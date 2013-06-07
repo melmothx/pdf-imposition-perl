@@ -70,17 +70,23 @@ with 59 blank pages. The manual solution is to change something in the
 document to get it under 60 pages, but this is not always viable or
 desirable. So you define a dynamic range for signature, like 20-60,
 (so the signature will vary between 20 and 60) and the routine will
-find the best one, which happens to be 32 (with 3 blank pages).
-
-If no signature is specified, the whole text will be imposed on a
-single signature, regardeless of its size.
+find the best one, which in this particular case happens to be 32 (so
+the text will have two booklets, and the second will have 3 blank
+pages).
 
 Es.
 
   $imposer->signature("20-60");
 
 Keep in mind that a signature with more than 100 pages is not suitable
-to be printed and folded at home (too thick).
+to be printed and folded at home (too thick), so to get some
+acceptable result, the sheets must be cut and glued together by a
+binder, so in this case you want to go with the single signature for
+the whole pdf.
+
+If no signature is specified, the whole text will be imposed on a
+single signature, regardeless of its size.
+
 
 =cut
 
@@ -157,7 +163,7 @@ sub _find_signature {
 
 This option is only used when the 2up or 2down schema is asked, i.e.,
 when a variable signature is needed. Often it happens that we want the
-last page of the pdf to be the last on the physical booklet. The
+last page of the pdf to be the last one on the physical booklet. The
 original algorithm just fills the signature with blank pages. If
 C<cover> is set to a true value, the last page of the logical pdf will
 be placed on the last page of the last signature.
@@ -187,7 +193,7 @@ Do the job and leave the output in C<< $self->outfile >>
 =head3 page_sequence_for_booklet($pages, $signature)
 
 Algorithm taken/stolen from C<psbook> (Angus J. C. Duggan 1991-1995).
-The C<psutils> are still a viable solution if you want to go with
+The C<psutils> are still a viable solution if you want to go with the
 PDF->PS->PDF route.
 
 =cut

@@ -24,7 +24,9 @@ my $opts = GetOptions (
 my ($file, $outfile) = @ARGV;
 
 if ($help) {
-    give_help();
+    pod2usage("Using PDF::Imposition version " .
+              $PDF::Imposition::VERSION . "\n");
+    exit 2;
 }
 
 
@@ -54,11 +56,6 @@ if (-f $imposer->outfile) {
 $imposer->impose;
 # and that's all
 print "Imposed PDF left in " . $imposer->outfile . "\n";
-
-sub give_help {
-    pod2usage();
-    exit 2;
-}
 
 =head1 NAME
 

@@ -3,7 +3,9 @@ use strict;
 use warnings;
 use base qw/PDF::Imposition::Schema/;
 
-=head1 NAME PDF::Imposition::Schema2x4x2
+=head1 NAME
+
+PDF::Imposition::Schema2x4x2 - fixed size 16 pages on 2 sheets signature schema, with double folding.
 
 =head1 SYNOPSIS
 
@@ -14,7 +16,7 @@ use base qw/PDF::Imposition::Schema/;
                                                     );
     $imposer->impose;
 
-The output pdf will be in C<< $imposer->output >>
+The output pdf will be left in C<< $imposer->output >>
 
 =head1 SCHEMA EXPLANATION
 
@@ -43,7 +45,7 @@ upside-down -- rotated 180 degrees):
      |      |      |    |      |      |
      +------+------+    +------+------+
      |      |      |    |      |      |
-     |  14  |  3   |    |  2   |  15  |
+     |  14  |  3   |    |  4   |  13  |
      |      |      |    |      |      |
      +------+------+    +------+------+
 
@@ -57,7 +59,7 @@ needed.
 
 =item  impose
 
-Do the job and leave the output in C<$self->outfile>
+Do the job and leave the output in C<< $self->outfile >>
 
 =back
 

@@ -6,3 +6,10 @@ Revision history for PDF-Imposition
 
         Initial release on CPAN. It ships schemas 2up, 2down, 2x4x2
 
+2013-06-07      Marco Pessotto <melmothx@gmail.com>
+
+	Release 0.02
+
+        Minor bugfixes to documentation and adjusted the Makefile to
+	install the script.
+

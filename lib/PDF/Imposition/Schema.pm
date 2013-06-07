@@ -51,8 +51,8 @@ or
 
 Costructor. Options should be passed as list. The options are the same
 of the read-write accessors describe below, so passing
-C<$self->file("file.pdf")> is exactly the same of passing
-C<$self->new(file => "file.pdf")>.
+C<< $self->file("file.pdf") >> is exactly the same of passing
+C<< $self->new(file => "file.pdf") >>.
 
 =cut
 
