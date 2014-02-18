@@ -14,6 +14,7 @@ t/01-create-test-pdf.t
 t/accessors.t
 t/basics.t
 t/boilerplate.t
+t/changes.t
 t/imposing.t
 t/manifest.t
 t/orig.lua

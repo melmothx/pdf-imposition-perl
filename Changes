@@ -1,28 +1,20 @@
-Revision history for PDF-Imposition
+Revision history for perl module PDF-Imposition
 
-2013-06-07      Marco Pessotto <melmothx@gmail.com>
+0.05 2014-02-18
+ - Fixed useless warning (debug leftover)
+ - Fixed this Changes files
 
-	Release 0.04
+0.04 2013-06-07
+ - Fixed the changelog, which was missing the previous entry.
+ - Added the new schema 2side (like "psnup -2").
 
-	Fixed the changelog, which was missing the previous entry.
-	Added the new schema 2side (like "psnup -2").
+0.03 2013-06-07
+ - Fixed missing prerequisite (Try::Tiny) in the Makefile
 
-2013-06-07      Marco Pessotto <melmothx@gmail.com>
+0.02 2013-06-07
+ - Minor bugfixes to documentation and adjusted the Makefile to
+   install the script.
 
-	Release 0.03
-
-	Fixed missing prerequisite (Try::Tiny) in the Makefile
-
-2013-06-07      Marco Pessotto <melmothx@gmail.com>
-
-	Release 0.02
-
-        Minor bugfixes to documentation and adjusted the Makefile to
-	install the script.
-
-2013-06-06      Marco Pessotto <melmothx@gmail.com>
-
-	Release 0.01
-
-        Initial release on CPAN. It ships schemas 2up, 2down, 2x4x2
+0.01 2013-06-06
+ - Initial release on CPAN. It ships schemas 2up, 2down, 2x4x2
 
