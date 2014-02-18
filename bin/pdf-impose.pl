@@ -84,7 +84,7 @@ Boolean
 
 =item --signature | --sig | -s <num>
 
-<num> must be a multiple of 4.
+<num> must be a multiple of 4 or a range like, e.g. 40-80
 
 =item --suffix <string> 
 
