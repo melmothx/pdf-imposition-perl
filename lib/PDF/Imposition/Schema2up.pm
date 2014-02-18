@@ -238,24 +238,27 @@ sub page_sequence_for_booklet {
     if ($self->cover) {
         my $last;
         my $firstundef;
+
+        # find the last page
         for (my $i = 0; $i < @pgs; $i++) {
             if ($pgs[$i] and $pgs[$i] == $pages) {
                 $last = $i;
             }
         }
+
+        # find the first empty page (inserted by us)
         for (my $i = 0; $i < @pgs; $i++) {
             if (not defined $pgs[$i]) {
                 $firstundef = $i;
                 last;
             }
         }
+
+        # if we don't find a white page, there is nothing to do
         if (defined $firstundef) {
             # there is an undef, so swap;
             $pgs[$firstundef] = $pgs[$last];
             $pgs[$last] = undef;
-        }
-        else {
-            warn "Nothing to do? $firstundef, $last";
         }
     }
     while (@pgs) {
