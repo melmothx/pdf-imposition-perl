@@ -1,24 +1,13 @@
 #!perl
 use strict;
 use warnings;
-use Test::More;
-use PDF::Imposition;
-use File::Spec::Functions;
-
-if ($ENV{RELEASE_TESTING}) {
-    plan tests => 16;
-}
-else {
-    plan skip_all => "No release testing, skipping";
-}
-
-eval "require Test::LeakTrace";
-if ($@) {
-    plan skip_all => "Test::LeakTrace required for testing memory cycles";
-    exit;
-}
+use constant HAS_LEAKTRACE => eval{ require Test::LeakTrace };
+use Test::More (HAS_LEAKTRACE && $ENV{RELEASE_TESTING}) ?
+  (tests => 16) : (skip_all => 'require Test::LeakTrace and RELEASE_TESTING');
 
 use Test::LeakTrace;
+use PDF::Imposition;
+use File::Spec::Functions;
 
 my @schemas = PDF::Imposition->available_schemas;
 

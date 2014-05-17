@@ -7,17 +7,13 @@ use Test::More;
 use PDF::Imposition;
 use File::Spec::Functions;
 
-if ($ENV{RELEASE_TESTING}) {
+eval "use Test::Memory::Cycle";
+
+if ($ENV{RELEASE_TESTING} && !$@) {
     plan tests => 16;
 }
 else {
     plan skip_all => "No release testing, skipping";
-}
-
-eval "use Test::Memory::Cycle";
-if ($@) {
-    plan skip_all => "Test::Memory::Cycle required for testing memory cycles";
-    exit;
 }
 
 my @schemas = PDF::Imposition->available_schemas;

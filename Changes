@@ -1,5 +1,8 @@
 Revision history for perl module PDF-Imposition
 
+0.07 2014-05-17
+ - Fixed test plans for memory leaks
+
 0.06 2014-05-17
  - Fixed bad memory leak due to missing ->release on the PDF::API2 objects
 
