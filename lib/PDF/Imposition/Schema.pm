@@ -282,8 +282,8 @@ the internal objects.
 sub impose {
     my $self = shift;
     my $out = $self->_do_impose;
-    $self->in_pdf_obj->release;
-    $self->out_pdf_obj->release;
+    $self->in_pdf_obj->end;
+    $self->out_pdf_obj->end;
     $self->_cleanup_objs;
     return $out;
 }
