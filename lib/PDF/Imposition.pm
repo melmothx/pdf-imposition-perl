@@ -164,7 +164,7 @@ L<http://www.ctan.org/pkg/pdfpages>
 =item pdfjam
 
 L<http://www2.warwick.ac.uk/fac/sci/statistics/staff/academic-research/firth/software/pdfjam/>
-(buil on the top of psutils)
+(buil on the top of pdfpages)
 
 =item ConTeXt
 
