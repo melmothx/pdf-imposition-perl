@@ -8,6 +8,13 @@ use File::Temp ();
 use PDF::API2;
 use CAM::PDF;
 use CAM::PDF::PageText;
+use File::Spec::Functions qw/catdir/;
+
+my $outputdir = catdir("t", "output");
+unless (-d $outputdir) {
+    mkdir $outputdir or die "Cannot create $outputdir $!";
+    diag "Created test directory $outputdir";
+}
 
 plan tests => 1;
 my $testdir = File::Temp->newdir(CLEANUP => 1);

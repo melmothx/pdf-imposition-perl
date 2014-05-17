@@ -12,11 +12,11 @@ PDF::Imposition - Perl module to manage the PDF imposition
 
 =head1 VERSION
 
-Version 0.05
+Version 0.06
 
 =cut
 
-our $VERSION = '0.05';
+our $VERSION = '0.06';
 
 
 =head1 SYNOPSIS
@@ -46,17 +46,17 @@ have all the pages with the same dimensions).
 
 =head1 METHODS
 
-=head2 Constructor
+=head2 new ( file => $file, schema => $schema, ...)
 
-=head3 new ( file => $file, schema => $schema, ...)
-
-This is the only method provided by this class. The constructor
-doesn't return itself, but instead load, build and return a
-L<PDF::Imposition::Schema> subclass object, defaulting to
+The constructor doesn't return itself, but instead load, build and
+return a L<PDF::Imposition::Schema> subclass object, defaulting to
 L<PDF::Imposition::Schema2up> (which is assumed to be the most common
 scenario).
 
 If you prefer, you can load the right class yourself.
+
+To produce the imposed PDF you need to call C<impose> on the resulting
+object (see synopsis).
 
 =head3 Options
 
@@ -125,7 +125,20 @@ sub new {
     return $loadclass->new(%options);
 }
 
+=head2 available_schemas
 
+Called on the class (not on the object returned by C<new>) will report
+the list of available schema.
+
+E.g.
+
+ PDF::Imposition->available_schemas;
+
+=cut
+
+sub available_schemas {
+    return qw/2up 2down 2side 2x4x2/;
+}
 
 =head1 AUTHOR
 

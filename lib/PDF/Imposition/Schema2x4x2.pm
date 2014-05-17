@@ -53,19 +53,9 @@ upside-down -- rotated 180 degrees):
 To complete the block of 16 logical pages, blank pages are inserted if
 needed.
 
-=head1 METHODS
-
-=over 4
-
-=item  impose
-
-Do the job and leave the output in C<< $self->outfile >>
-
-=back
-
 =cut
 
-sub impose {
+sub _do_impose {
     my $self = shift;
     # set the mediabox doubling them
     $self->out_pdf_obj->mediabox(

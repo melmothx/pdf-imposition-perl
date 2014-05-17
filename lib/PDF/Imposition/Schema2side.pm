@@ -45,19 +45,9 @@ This corresponds to C<psnup -2> in the <psutils>.
 The last logical page will be empty if the number of pages of the
 original PDF is odd.
 
-=head1 METHODS
-
-=over 4
-
-=item  impose
-
-Do the job and leave the output in C<< $self->outfile >>
-
-=back
-
 =cut
 
-sub impose {
+sub _do_impose {
     my $self = shift;
     $self->out_pdf_obj->mediabox(
                                  $self->orig_width * 2,

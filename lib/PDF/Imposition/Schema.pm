@@ -27,6 +27,7 @@ by itself, but only provides some shared methods>.
                                        # or suffix
                                        suffix => "-2up"
                                       );
+    $imposer->impose;
 or 
 
     use PDF::Imposition;
@@ -36,6 +37,8 @@ or
     $imposer->outfile("out.pdf");
     # or
     $imposer->suffix("-imp");
+
+    $imposer->impose;
   
 =cut
 
@@ -246,6 +249,12 @@ sub out_pdf_obj {
     return $self->{_output_pdf_obj};
 }
 
+sub _cleanup_objs {
+    my $self = shift;
+    foreach my $f (qw/_output_pdf_obj _input_pdf_obj/) {
+        delete $self->{$f};
+    }
+}
 
 =head3 get_imported_page($pagenumber)
 
@@ -261,6 +270,22 @@ sub get_imported_page {
         return undef;
     }
     return  $self->out_pdf_obj->importPageIntoForm($self->in_pdf_obj, $page)
+}
+
+=head3 impose
+
+Do the job and leave the output in C<< $self->outfile >>, cleaning up
+the internal objects.
+
+=cut
+
+sub impose {
+    my $self = shift;
+    my $out = $self->_do_impose;
+    $self->in_pdf_obj->release;
+    $self->out_pdf_obj->release;
+    $self->_cleanup_objs;
+    return $out;
 }
 
 1;

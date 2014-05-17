@@ -13,10 +13,11 @@ t/00-load.t
 t/01-create-test-pdf.t
 t/accessors.t
 t/basics.t
-t/boilerplate.t
 t/changes.t
 t/imposing.t
+t/leaks.t
 t/manifest.t
+t/memory_cycles.t
 t/orig.lua
 t/pdf-v16.t
 t/pdfv16.pdf

@@ -35,19 +35,9 @@ the top edge).
 
 I find this schema odd, but I provide it nevertheless.
 
-=head1 METHODS
-
-=over 4
-
-=item impose
-
-Do the job and leave the output in C<< $self->outfile >>
-
-=back
-
 =cut
 
-sub impose {
+sub _do_impose {
     my $self = shift;
     $self->out_pdf_obj->mediabox(
                                  $self->orig_height * 2,

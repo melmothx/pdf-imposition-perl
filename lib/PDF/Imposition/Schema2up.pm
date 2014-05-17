@@ -182,12 +182,6 @@ sub cover {
     return $self->{cover};
 }
 
-=head3 impose
-
-Do the job and leave the output in C<< $self->outfile >>
-
-=cut
-
 =head2 Internal (but documented) methods
 
 =head3 page_sequence_for_booklet($pages, $signature)
@@ -267,7 +261,7 @@ sub page_sequence_for_booklet {
     return \@out;
 }
 
-sub impose {
+sub _do_impose {
     my $self = shift;
     # prototype
     $self->out_pdf_obj->mediabox(
