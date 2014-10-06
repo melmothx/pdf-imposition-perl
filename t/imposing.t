@@ -23,7 +23,7 @@ unless (-d $outputdir) {
     mkdir $outputdir or die "Cannot create $outputdir $!";
 }
 
-my $numtest = 32;
+my $numtest = 38;
 
 if ($pdftotext != 0) {
     plan tests => $numtest;
@@ -329,6 +329,72 @@ test_is_deeply($imp,
                 [ 18, 19],
                ],
                "1x4x2cutfoldbind works", 20);
+
+$pdffile = create_pdf("1x4x2cutfoldbind-even", 1..20);
+$imp = PDF::Imposition->new(
+                            file => $pdffile,
+                            cover => 1,
+                            schema => '1x4x2cutfoldbind',
+                           );
+
+$imp->impose;
+test_is_deeply($imp,
+               [
+                [ 4, 1, 8, 5 ],
+                [ 2, 3, 6, 7 ],
+                [ 12, 9, 16, 13 ],
+                [ 10, 11, 14, 15 ],
+                [ 20, 17],
+                [ 18, 19],
+               ],
+               "1x4x2cutfoldbind works", 20);
+
+
+
+$pdffile = create_pdf("1x4x2cutfoldbind-odd", 1..3);
+$imp = PDF::Imposition->new(
+                            file => $pdffile,
+                            cover => 1,
+                            schema => '1x4x2cutfoldbind',
+                           );
+
+$imp->impose;
+test_is_deeply($imp,
+               [
+                [  3, 1 ],
+                [ 2,  ],
+               ],
+               "1x4x2cutfoldbind works, 3 is where 8 should be", 3);
+
+$pdffile = create_pdf("1x4x2cutfoldbind-odd-2", 1..6);
+$imp = PDF::Imposition->new(
+                            file => $pdffile,
+                            cover => 1,
+                            schema => '1x4x2cutfoldbind',
+                           );
+
+$imp->impose;
+test_is_deeply($imp,
+               [
+                [ 4, 1, 6 ,5   ],
+                [ 2, 3 ],
+               ],
+               "1x4x2cutfoldbind works, 6 is where 8 should be", 6);
+
+$pdffile = create_pdf("1x4x2cutfoldbind-odd-3", 1..7);
+$imp = PDF::Imposition->new(
+                            file => $pdffile,
+                            cover => 1,
+                            schema => '1x4x2cutfoldbind',
+                           );
+
+$imp->impose;
+test_is_deeply($imp,
+               [
+                [ 4, 1, 7 ,5   ],
+                [ 2, 6, 3 ], # messed up by the extraction
+               ],
+               "1x4x2cutfoldbind works, 7 is where 8 should be", 7);
 
 
 

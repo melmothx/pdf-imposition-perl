@@ -54,6 +54,16 @@ sub _do_impose {
                                 );
     my $total = $self->total_pages;
     my @pages = (1..$total);
+    if ($self->cover) {
+        if (my $modulo = $total % 4) {
+            my $blanks = 4 - $modulo;
+            my $last = pop @pages;
+            for (1 .. $blanks) {
+                push @pages, undef;
+            }
+            push @pages, $last;
+        }
+    }
     while (@pages) {
         my ($p1, $p2, $p3, $p4, $p5, $p6, $p7, $p8) = splice @pages, 0, 8;
         $self->_compose_quadruple($p8, $p5, $p1, $p4);
