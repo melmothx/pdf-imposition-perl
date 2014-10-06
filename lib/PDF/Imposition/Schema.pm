@@ -137,6 +137,32 @@ sub suffix {
 }
 
 
+=head3 cover
+
+This option is ignored for 2x4x2 and 2side schemas. Often it happens
+that we want the last page of the pdf to be the last one on the
+physical booklet after folding. If C<cover> is set to a true value,
+the last page of the logical pdf will be placed on the last page of
+the last signature.
+
+Individual schema implementations are in charge to check and act on this setting.
+
+Es.
+
+  $imposer->cover(1);
+
+=cut
+
+sub cover {
+    my $self = shift;
+    if (@_ == 1) {
+        $self->{cover} = shift;
+    }
+    return $self->{cover};
+}
+
+
+
 =head2 Internal accessors
 
 The following methods are used internally but documented for schema's
