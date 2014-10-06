@@ -23,8 +23,10 @@ unless (-d $outputdir) {
     mkdir $outputdir or die "Cannot create $outputdir $!";
 }
 
+my $numtest = 32;
+
 if ($pdftotext != 0) {
-    plan tests => 30;
+    plan tests => $numtest;
     $skipex = 1;
     diag "It appears that pdftotext is not available.";
     diag "I'm just testing that the imposer produces something";
@@ -33,7 +35,7 @@ if ($pdftotext != 0) {
     diag "Anyway, some testing is way better than no test at all";
 } 
 else {
-    plan tests => 60;
+    plan tests => $numtest * 2;
 }
 
 diag "Using $testdir as test directory";
