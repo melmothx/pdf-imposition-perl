@@ -2,6 +2,7 @@ bin/pdf-impose.pl
 Changes
 lib/PDF/Imposition.pm
 lib/PDF/Imposition/Schema.pm
+lib/PDF/Imposition/Schema1x4x2cutfoldbind.pm
 lib/PDF/Imposition/Schema2down.pm
 lib/PDF/Imposition/Schema2side.pm
 lib/PDF/Imposition/Schema2up.pm

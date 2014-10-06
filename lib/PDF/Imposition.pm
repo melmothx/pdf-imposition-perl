@@ -137,7 +137,7 @@ E.g.
 =cut
 
 sub available_schemas {
-    return qw/2up 2down 2side 2x4x2/;
+    return qw/2up 2down 2side 2x4x2 1x4x2cutfoldbind/;
 }
 
 =head1 AUTHOR

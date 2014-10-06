@@ -24,7 +24,7 @@ unless (-d $outputdir) {
 }
 
 if ($pdftotext != 0) {
-    plan tests => 26;
+    plan tests => 30;
     $skipex = 1;
     diag "It appears that pdftotext is not available.";
     diag "I'm just testing that the imposer produces something";
@@ -33,7 +33,7 @@ if ($pdftotext != 0) {
     diag "Anyway, some testing is way better than no test at all";
 } 
 else {
-    plan tests => 52;
+    plan tests => 60;
 }
 
 diag "Using $testdir as test directory";
@@ -294,6 +294,40 @@ test_is_deeply($imp,
                 [ 1, 2], [3,4], [5,6], [7]
                ],
                "2 side works", 7);
+
+$pdffile = create_pdf("1x4x2cutfoldbind", 1..8);
+$imp = PDF::Imposition->new(
+                            file => $pdffile,
+                            schema => '1x4x2cutfoldbind',
+                           );
+
+$imp->impose;
+test_is_deeply($imp,
+               [
+                [ 4, 1, 8, 5 ],
+                [ 2, 3, 6, 7 ],
+               ],
+               "1x4x2cutfoldbind works", 8);
+
+
+$pdffile = create_pdf("1x4x2cutfoldbind", 1..20);
+$imp = PDF::Imposition->new(
+                            file => $pdffile,
+                            schema => '1x4x2cutfoldbind',
+                           );
+
+$imp->impose;
+test_is_deeply($imp,
+               [
+                [ 4, 1, 8, 5 ],
+                [ 2, 3, 6, 7 ],
+                [ 12, 9, 16, 13 ],
+                [ 10, 11, 14, 15 ],
+                [ 20, 17],
+                [ 18, 19],
+               ],
+               "1x4x2cutfoldbind works", 20);
+
 
 
 sub create_pdf {

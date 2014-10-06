@@ -64,7 +64,6 @@ sub _do_impose {
                                 );
     # here we work with fixed signatures of 16, with the module
     my $total = $self->total_pages;
-    my ($page, $gfx, $chunk);
     my @pages = (1..$total);
 
     # loop over the pages and compose the 4 physical pages
