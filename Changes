@@ -1,5 +1,8 @@
 Revision history for perl module PDF-Imposition
 
+0.08 2014-10-06
+ - New schema: 1x4x2cutfoldbind
+
 0.07 2014-05-17
  - Fixed test plans for memory leaks
 
