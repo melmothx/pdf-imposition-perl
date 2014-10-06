@@ -34,7 +34,7 @@ WriteMakefile(
     clean => { FILES => 'PDF-Imposition-*' },
     META_MERGE => {
                    resources => {
-                                 repository => 'https://gitorious.org/perl-pdf-imposition'
+                                 repository => 'https://github.com/melmothx/pdf-imposition-perl'
                                 },
                   },
 
