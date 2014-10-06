@@ -73,9 +73,9 @@ about the options.
 
 =over 4
 
-=item  --schema 2up | 2down | 2x4x2 | 2side
+=item  --schema 2up | 2down | 2x4x2 | 2side | 1x4x2cutfoldbind
 
-The schema to use: defaults to 2up. See perldoc PDF::Imposition
+The schema to use: defaults to 2up. See C<perldoc PDF::Imposition>
 for details about the available schemas.
 
 =item  --cover
