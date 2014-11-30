@@ -46,6 +46,8 @@ It's basically a shortcut to save paper if you impose, e.g. A6 on A4.
 sub _do_impose {
     my $self = shift;
     # each physical page, 4 logical pages, recto-verso = 8
+    $self->_set_pages_per_sheet(8);
+    die if $self->pages_per_sheet != 8;
     if ($self->signature % 8) {
         die "Signature must be a multiple of 8!\n";
     }

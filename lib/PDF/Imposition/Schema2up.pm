@@ -99,41 +99,67 @@ sub signature {
     return $self->_optimize_signature($sig) + 0; # force the scalar context
 }
 
+=head3 pages_per_sheet
+
+The number of logical pages which fit on a sheet, recto-verso. For
+this class, it will always return 4. Subclasses are allowed to change
+this.
+
+=cut
+
+sub pages_per_sheet {
+    return shift->{page_per_sheet} || 4;
+}
+
+sub _set_pages_per_sheet {
+    # private
+    my ($self, $num) = @_;
+    die "bad usage" unless $num;
+    if ($num == 2 or $num == 4 or $num == 8 or $num == 16 or $num == 32) {
+        $self->{page_per_sheet} = $num;
+    }
+    else {
+        die "bad number";
+    }
+    return $self->pages_per_sheet;
+}
+
 sub _optimize_signature {
     my ($self, $sig, $total_pages) = @_;
     unless ($total_pages) {
         $total_pages = $self->total_pages;
     }
     return 0 unless $sig;
+    my $ppsheet = $self->pages_per_sheet or die;
     if ($sig =~ m/^[0-9]+$/s) {
-        die "Signature must be a multiple of four" if $sig % 4;
+        die "Signature must be a multiple of $ppsheet" if $sig % $ppsheet;
         return $sig;
     }
     my ($min, $max);
     if ($sig =~ m/^([0-9]+)?-([0-9]+)?$/s) {
-        $min = $1 || 4;
+        $min = $1 || $ppsheet;
         $max = $2 || $total_pages;
-        $min = $min + ((4 - ($min % 4)) % 4);
-        $max = $max + ((4 - ($max % 4)) % 4);
+        $min = $min + (($ppsheet - ($min % $ppsheet)) % $ppsheet);
+        $max = $max + (($ppsheet - ($max % $ppsheet)) % $ppsheet);
         die "Bad range $max - $min" unless $max > $min;
-        die "bad min $min" if $min % 4;
-        die "bad max $max" if $max % 4;
+        die "bad min $min" if $min % $ppsheet;
+        die "bad max $max" if $max % $ppsheet;
     }
     else {
         die "Unrecognized range $sig";
     }
     my $signature = 0;
-    my $roundedpages = $total_pages + ((4 - ($total_pages % 4)) % 4);
+    my $roundedpages = $total_pages + (($ppsheet - ($total_pages % $ppsheet)) % $ppsheet);
     my $needed = $roundedpages - $total_pages;
-    die "Something is wrong" if $roundedpages % 4;
+    die "Something is wrong" if $roundedpages % $ppsheet;
     if ($roundedpages <= $min) {
         wantarray ? return ($roundedpages, $needed) : return $roundedpages;
     }
     $signature = $self->_find_signature($roundedpages, $max);
     if ($roundedpages > $max) {
         while ($signature < $min) {
-            $roundedpages += 4;
-            $needed += 4;
+            $roundedpages += $ppsheet;
+            $needed += $ppsheet;
             $signature = $self->_find_signature($roundedpages, $max)
         }
     }
@@ -143,7 +169,8 @@ sub _optimize_signature {
 
 sub _find_signature {
     my ($self, $num, $max) = @_;
-    die "not a multiple of four" if $num % 4;
+    my $ppsheet = $self->pages_per_sheet or die;
+    die "not a multiple of $ppsheet" if $num % $ppsheet;
     die "uh?" unless $num;
     my $i = $max;
     while ($i > 0) {
@@ -153,7 +180,7 @@ sub _find_signature {
         if (($num % $i) == 0) {
             return $i;
         }
-        $i -= 4;
+        $i -= $ppsheet;
     }
     warn "Looped ended with no result\n";
 }
@@ -180,8 +207,10 @@ sub page_sequence_for_booklet {
     my (@pgs, $maxpage);
     use integer;
     if (!$signature) {
-        # rounding 
-        $signature = $maxpage = $pages + ((4 - ($pages % 4)) % 4);
+        # rounding
+        my $ppsheet = $self->pages_per_sheet;
+        $signature = $maxpage =
+          $pages + (($ppsheet - ($pages % $ppsheet)) % $ppsheet);
     }
     else {
         $maxpage = $pages + (($signature - ($pages % $signature)) % $signature)
