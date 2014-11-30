@@ -17,13 +17,13 @@ use Data::Dumper;
 # environment, let's shell out.
 my $pdftotext = system('pdftotext', '-v');
 my $skipex;
-my $testdir = File::Temp->newdir(CLEANUP => 1);
+my $testdir = File::Temp->newdir(CLEANUP => 0);
 my $outputdir = catdir("t", "output");
 unless (-d $outputdir) {
     mkdir $outputdir or die "Cannot create $outputdir $!";
 }
 
-my $numtest = 38;
+my $numtest = 46;
 
 if ($pdftotext != 0) {
     plan tests => $numtest;
@@ -396,6 +396,68 @@ test_is_deeply($imp,
                ],
                "1x4x2cutfoldbind works, 7 is where 8 should be", 7);
 
+$pdffile = create_pdf("4up", 1..48);
+
+$imp = PDF::Imposition->new(file => $pdffile,
+                            schema => '4up');
+
+$imp->impose;
+test_is_deeply($imp,
+               [
+                [ 48,  1, 36, 13 ],
+                [ 2,  47, 14, 35 ],
+                [ 46,  3, 34, 15 ],
+                [ 4,  45, 16, 33 ],
+                [ 44,  5, 32, 17 ],
+                [ 6,  43, 18, 31 ],
+                [ 42,  7, 30, 19 ],
+                [ 8,  41, 20, 29 ],
+                [ 40,  9, 28, 21 ],
+                [ 10, 39, 22, 27 ],
+                [ 38, 11, 26, 23 ],
+                [ 12, 37, 24, 25 ],
+               ],
+               "4up looks ok", 48);
+
+$pdffile = create_pdf("4up-short", 1..8);
+$imp = PDF::Imposition->new(file => $pdffile,
+                            schema => '4up');
+
+$imp->impose;
+test_is_deeply($imp,
+               [
+                [ 8, 1, 6, 3],
+                [ 2, 7, 4, 5],
+               ],
+               "4up with 8 pages looks ok", 8);
+
+$pdffile = create_pdf("4up-very-short", 1..3);
+$imp = PDF::Imposition->new(file => $pdffile,
+                            cover => 1,
+                            signature => 8,
+                            schema => '4up');
+$imp->impose;
+test_is_deeply($imp,
+               [
+                [ 3, 1, ],
+                [ 2, ],
+               ],
+               "4up with 3 pages looks ok", 3);
+
+
+$pdffile = create_pdf("4up-very-short-nosig", 1..3);
+$imp = PDF::Imposition->new(file => $pdffile,
+                            cover => 1,
+                            schema => '4up');
+$imp->impose;
+test_is_deeply($imp,
+               [
+                [ 3, 1, ],
+                [ 2, ],
+               ],
+               "4up with 3 pages looks ok", 3);
+
+
 
 
 sub create_pdf {
@@ -464,7 +526,8 @@ sub test_is_deeply {
     ok($imposer->outfile, "output is here");
     ok((-f $imposer->outfile), "File created");
     unless ($skipex) {
-        is_deeply(extract_pdf($imposer->outfile), $seq, $message);
+        my $extracted = extract_pdf($imposer->outfile);
+        is_deeply($extracted, $seq, $message) or diag Dumper($extracted);
     }
     if ($pages && !$skipex) {
         all_pages_present($imposer->outfile, $pages);

@@ -96,6 +96,10 @@ See L<PDF::Imposition::Schema2x4x2>
 
 See L<PDF::Imposition::Schema2side>
 
+=item 4up
+
+See L<PDF::Imposition::Schema4up>
+
 =item 1x4x2cutfoldbind
 
 See L<PDF::Imposition::Schema1x4x2cutfoldbind>
@@ -140,7 +144,8 @@ E.g.
 =cut
 
 sub available_schemas {
-    return qw/2up 2down 2side 2x4x2 1x4x2cutfoldbind/;
+    return qw/2up 2down 2side 2x4x2 1x4x2cutfoldbind
+              4up/;
 }
 
 =head1 AUTHOR
