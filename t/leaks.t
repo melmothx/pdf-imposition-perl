@@ -3,7 +3,7 @@ use strict;
 use warnings;
 use constant HAS_LEAKTRACE => eval{ require Test::LeakTrace };
 use Test::More (HAS_LEAKTRACE && $ENV{RELEASE_TESTING}) ?
-  (tests => 20) : (skip_all => 'require Test::LeakTrace and RELEASE_TESTING');
+  (tests => 24) : (skip_all => 'require Test::LeakTrace and RELEASE_TESTING');
 
 use Test::LeakTrace;
 use PDF::Imposition;

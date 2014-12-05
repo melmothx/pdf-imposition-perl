@@ -1,6 +1,6 @@
 Revision history for perl module PDF-Imposition
 
-0.10 FUTURE
+0.10 2014-12-05
  - New schema: 4up
  - Add some basic info the the output PDF
 
