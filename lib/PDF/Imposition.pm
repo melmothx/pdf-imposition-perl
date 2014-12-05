@@ -158,6 +158,8 @@ Please report any bugs or feature requests to the author's email. If
 you find a bug, please provide a minimal example file which reproduces
 the problem (so I can add it to the test suite).
 
+Or, at your discretion, feel free to use the CPAN's RT.
+
 =head1 SUPPORT
 
 You can find documentation for this module with the perldoc command.
@@ -166,7 +168,7 @@ You can find documentation for this module with the perldoc command.
 
 =head1 REPOSITORY
 
-L<https://gitorious.org/perl-pdf-imposition>
+L<https://github.com/melmothx/pdf-imposition-perl>
 
 =head1 SEE ALSO
 
