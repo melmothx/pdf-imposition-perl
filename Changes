@@ -2,6 +2,7 @@ Revision history for perl module PDF-Imposition
 
 0.10 FUTURE
  - New schema: 4up
+ - Add some basic info the the output PDF
 
 0.09 2014-10-06
  - 1x4x2cutfoldbind now obeys the cover setting

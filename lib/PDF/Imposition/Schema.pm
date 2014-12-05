@@ -8,6 +8,7 @@ use CAM::PDF;
 use PDF::API2;
 use File::Temp ();
 use File::Copy;
+use POSIX ();
 
 =head1 NAME
 
@@ -270,7 +271,17 @@ sub in_pdf_obj {
 sub out_pdf_obj {
     my $self = shift;
     unless ($self->{_output_pdf_obj}) {
-        $self->{_output_pdf_obj} = PDF::API2->new();
+        my $pdf = PDF::API2->new();
+        my ($basename, $path, $suff) = fileparse($self->file,
+                                                 ".pdf", ".PDF");
+        $pdf->info(
+                   Creator => 'PDF::Imposition',
+                   Producer => 'PDF::API2',
+                   Title => $basename,
+                   CreationDate => $self->_orig_file_timestamp,
+                   ModDate => $self->_now_timestamp,
+                  );
+        $self->{_output_pdf_obj} = $pdf;
     }
     return $self->{_output_pdf_obj};
 }
@@ -312,6 +323,21 @@ sub impose {
     $self->out_pdf_obj->end;
     $self->_cleanup_objs;
     return $out;
+}
+
+sub _orig_file_timestamp {
+    my $self = shift;
+    my $mtime = (stat($self->file))[9];
+    return $self->_format_timestamp($mtime);
+}
+
+sub _now_timestamp {
+    return shift->_format_timestamp(time());
+}
+
+sub _format_timestamp {
+    my ($self, $epoc) = @_;
+    return POSIX::strftime(q{%Y%m%d%H%M%S+00'00'}, localtime($epoc));
 }
 
 1;
