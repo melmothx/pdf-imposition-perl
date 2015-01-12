@@ -104,6 +104,18 @@ See L<PDF::Imposition::Schema4up>
 
 See L<PDF::Imposition::Schema1x4x2cutfoldbind>
 
+=item 1repeat2top
+
+See L<PDF::Imposition::Schema1repeat2top>
+
+=item 1repeat2side
+
+See L<PDF::Imposition::Schema1repeat2side>
+
+=item 1repeat4
+
+See L<PDF::Imposition::Schema1repeat4>
+
 =back
 
 =item cover
