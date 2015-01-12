@@ -23,7 +23,7 @@ unless (-d $outputdir) {
     mkdir $outputdir or die "Cannot create $outputdir $!";
 }
 
-my $numtest = 46;
+my $numtest = 52;
 
 if ($pdftotext != 0) {
     plan tests => $numtest;
@@ -457,6 +457,22 @@ test_is_deeply($imp,
                ],
                "4up with 3 pages looks ok", 3);
 
+$pdffile = create_pdf("repeat2side", 1..3);
+$imp = PDF::Imposition->new(file => $pdffile, schema => '1repeat2side');
+$imp->impose;
+test_is_deeply($imp, [ [ 1, 1 ], [ 2, 2 ], [ 3, 3 ] ], "1repeat2side ok", 3);
+
+
+$pdffile = create_pdf("repeat2top", 1..3);
+$imp = PDF::Imposition->new(file => $pdffile, schema => '1repeat2top');
+$imp->impose;
+test_is_deeply($imp, [ [ 1, 1 ], [ 2, 2 ], [ 3, 3 ] ], "1repeat2top ok", 3);
+
+$pdffile = create_pdf("repeat4", 1..3);
+$imp = PDF::Imposition->new(file => $pdffile, schema => '1repeat4');
+$imp->impose;
+test_is_deeply($imp, [ [ 1, 1, 1, 1 ], [ 2, 2, 2, 2 ], [ 3, 3, 3, 3 ] ],
+               "1repeat4 ok", 3);
 
 
 
@@ -543,6 +559,16 @@ sub all_pages_present {
     foreach my $physical (@array) {
         push @result, @$physical;
     }
+
     @result = sort { $a <=> $b } @result;
-    is_deeply \@result, \@expected, "All pages present in $pdf";
+    my @filtered;
+    my %dups;
+    while (@result) {
+        my $p = shift @result;
+        if (!$dups{$p}) {
+            push @filtered, $p;
+            $dups{$p} = 1;
+        }
+    }
+    is_deeply \@filtered, \@expected, "All pages present in $pdf";
 }

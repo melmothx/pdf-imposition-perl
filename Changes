@@ -1,5 +1,8 @@
 Revision history for perl module PDF-Imposition
 
+0.11 2015-01-12
+ - New schemas: 1repeat2top, 1repeat2side, 1repeat4
+
 0.10 2014-12-05
  - New schema: 4up
  - Add some basic info the the output PDF

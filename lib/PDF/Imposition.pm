@@ -12,11 +12,11 @@ PDF::Imposition - Perl module to manage the PDF imposition
 
 =head1 VERSION
 
-Version 0.10
+Version 0.11
 
 =cut
 
-our $VERSION = '0.10';
+our $VERSION = '0.11';
 
 
 =head1 SYNOPSIS
@@ -145,7 +145,7 @@ E.g.
 
 sub available_schemas {
     return qw/2up 2down 2side 2x4x2 1x4x2cutfoldbind
-              4up/;
+              4up 1repeat2top 1repeat2side 1repeat4/;
 }
 
 =head1 AUTHOR

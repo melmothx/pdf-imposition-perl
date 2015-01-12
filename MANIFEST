@@ -2,6 +2,9 @@ bin/pdf-impose.pl
 Changes
 lib/PDF/Imposition.pm
 lib/PDF/Imposition/Schema.pm
+lib/PDF/Imposition/Schema1repeat2side.pm
+lib/PDF/Imposition/Schema1repeat2top.pm
+lib/PDF/Imposition/Schema1repeat4.pm
 lib/PDF/Imposition/Schema1x4x2cutfoldbind.pm
 lib/PDF/Imposition/Schema2down.pm
 lib/PDF/Imposition/Schema2side.pm
@@ -14,6 +17,7 @@ README
 t/00-load.t
 t/01-create-test-pdf.t
 t/accessors.t
+t/available.t
 t/basics.t
 t/changes.t
 t/imposing.t
