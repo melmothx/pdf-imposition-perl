@@ -20,7 +20,7 @@ my $opts = GetOptions (
                        'suffix=s' => \$suffix,
                        'cover' => \$cover,
                        'schema=s' => \$schema,
-                      );
+                      ) or die;
 my ($file, $outfile) = @ARGV;
 
 if ($help) {
@@ -73,9 +73,12 @@ about the options.
 
 =over 4
 
-=item  --schema 2up | 2down | 2x4x2 | 2side | 1x4x2cutfoldbind | 4up
+=item  --schema
 
-The schema to use: defaults to 2up. See C<perldoc PDF::Imposition>
+Available schemas: C<2up> C<2down> C<2x4x2> C<2side>
+C<1x4x2cutfoldbind> C<4up> C<1repeat2top> C<1repeat2side> C<1repeat4>
+
+The schema to use: defaults to C<2up>. See C<perldoc PDF::Imposition>
 for details about the available schemas.
 
 =item  --cover

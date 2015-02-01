@@ -12,11 +12,11 @@ PDF::Imposition - Perl module to manage the PDF imposition
 
 =head1 VERSION
 
-Version 0.11
+Version 0.12
 
 =cut
 
-our $VERSION = '0.11';
+our $VERSION = '0.12';
 
 
 =head1 SYNOPSIS
@@ -116,6 +116,10 @@ See L<PDF::Imposition::Schema1repeat2side>
 
 See L<PDF::Imposition::Schema1repeat4>
 
+=item ea4x4
+
+See L<PDF::Imposition::Schemaea4x4>
+
 =back
 
 =item cover
@@ -157,7 +161,7 @@ E.g.
 
 sub available_schemas {
     return qw/2up 2down 2side 2x4x2 1x4x2cutfoldbind
-              4up 1repeat2top 1repeat2side 1repeat4/;
+              4up 1repeat2top 1repeat2side 1repeat4 ea4x4/;
 }
 
 =head1 AUTHOR

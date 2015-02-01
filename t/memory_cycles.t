@@ -10,7 +10,7 @@ use File::Spec::Functions;
 eval "use Test::Memory::Cycle";
 
 if ($ENV{RELEASE_TESTING} && !$@) {
-    plan tests => 36;
+    plan tests => 40;
 }
 else {
     plan skip_all => "No release testing, skipping";

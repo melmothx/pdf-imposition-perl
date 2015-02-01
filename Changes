@@ -1,5 +1,8 @@
 Revision history for perl module PDF-Imposition
 
+0.12 2015-02-01
+ - New schema: ea4x4 (this is a weird one)
+
 0.11 2015-01-12
  - New schemas: 1repeat2top, 1repeat2side, 1repeat4
 

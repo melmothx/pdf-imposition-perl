@@ -23,7 +23,7 @@ unless (-d $outputdir) {
     mkdir $outputdir or die "Cannot create $outputdir $!";
 }
 
-my $numtest = 52;
+my $numtest = 56;
 
 if ($pdftotext != 0) {
     plan tests => $numtest;
@@ -473,6 +473,24 @@ $imp = PDF::Imposition->new(file => $pdffile, schema => '1repeat4');
 $imp->impose;
 test_is_deeply($imp, [ [ 1, 1, 1, 1 ], [ 2, 2, 2, 2 ], [ 3, 3, 3, 3 ] ],
                "1repeat4 ok", 3);
+
+$pdffile = create_pdf("ea4x4", 1..16);
+$imp = PDF::Imposition->new(file => $pdffile, schema => 'ea4x4');
+$imp->impose;
+test_is_deeply($imp, [ [ 4, 13, 16, 1 ], [ 14, 3, 2, 15 ],
+                       [ 8, 9, 12, 5],   [ 10, 7, 6, 11 ] ],
+               "ea4x4", 16);
+
+
+$pdffile = create_pdf("ea4x4-odd", 1..17);
+$imp = PDF::Imposition->new(file => $pdffile, schema => 'ea4x4');
+$imp->impose;
+test_is_deeply($imp, [ [ 4, 13, 16, 1 ], [ 14, 3, 2, 15 ],
+                       [ 8, 9, 12, 5],   [ 10, 7, 6, 11 ], [ 17 ] ],
+               "ea4x4-odd", 17);
+
+
+
 
 
 
