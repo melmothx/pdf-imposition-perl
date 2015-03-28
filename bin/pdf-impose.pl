@@ -77,7 +77,7 @@ about the options.
 
 Available schemas: C<2up> C<2down> C<2x4x2> C<2side>
 C<1x4x2cutfoldbind> C<4up> C<1repeat2top> C<1repeat2side> C<1repeat4>
-C<ae4x4>
+C<ae4x4> C<1x8x2>
 
 The schema to use: defaults to C<2up>. See C<perldoc PDF::Imposition>
 for details about the available schemas.

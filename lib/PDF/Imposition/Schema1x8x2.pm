@@ -76,18 +76,17 @@ sub _do_impose {
             $p5,  $p6,  $p7,  $p8,
             $p9,  $p10, $p11, $p12,
             $p13, $p14, $p15, $p16) = splice @pages, 0, 16;
-        # initialize
-        $self->_compose_quadruple($p16, $p1, $p8, $p9);
-        $self->_compose_quadruple($p2, $p15, $p10, $p7);
-        $self->_compose_quadruple($p14, $p3, $p6, $p11);
-        $self->_compose_quadruple($p4, $p13, $p12, $p5);
+        $self->_compose_eight($p4, $p13, $p16, $p1,
+                              $p8, $p9, $p12, $p5);
+        $self->_compose_eight($p2, $p15, $p14, $p3,
+                              $p6, $p11, $p10, $p7);
     }
     
     $self->out_pdf_obj->saveas($self->outfile);
     return $self->outfile;
 }
 
-sub _compose_quadruple {
+sub _compose_eight {
     my ($self, @seq) = @_;
     my $chunk;
     my $page = $self->out_pdf_obj->page;
@@ -99,18 +98,33 @@ sub _compose_quadruple {
     $chunk = $self->get_imported_page($seq[1]);
     $gfx->formimage($chunk, $self->orig_width, 0) if $chunk;
 
+    $chunk = $self->get_imported_page($seq[2]);
+    $gfx->formimage($chunk, $self->orig_width * 2, 0) if $chunk;
+
+    $chunk = $self->get_imported_page($seq[3]);
+    $gfx->formimage($chunk, $self->orig_width * 3, 0) if $chunk;
+
     # translate
     $gfx->transform (
-                     -translate => [$self->orig_width  * 2,
+                     -translate => [$self->orig_width * 4,
                                     $self->orig_height * 2],
                      -rotate => 180,
                     );
 
-    $chunk = $self->get_imported_page($seq[2]);
+    $chunk = $self->get_imported_page($seq[4]);
     $gfx->formimage($chunk, 0, 0) if $chunk;
     
-    $chunk = $self->get_imported_page($seq[3]);
+    $chunk = $self->get_imported_page($seq[5]);
     $gfx->formimage($chunk, $self->orig_width, 0) if $chunk;
+
+    $chunk = $self->get_imported_page($seq[6]);
+    $gfx->formimage($chunk, $self->orig_width *  2, 0) if $chunk;
+
+    $chunk = $self->get_imported_page($seq[7]);
+    $gfx->formimage($chunk, $self->orig_width * 3, 0) if $chunk;
+
+
+
 }
 
 1;

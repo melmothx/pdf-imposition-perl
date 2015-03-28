@@ -34,7 +34,10 @@ WriteMakefile(
     clean => { FILES => 'PDF-Imposition-*' },
     META_MERGE => {
                    resources => {
-                                 repository => 'https://github.com/melmothx/pdf-imposition-perl'
+                                 repository => 'https://github.com/melmothx/pdf-imposition-perl',
+                                 homepage => 'http://amusewiki.org',
+                                 x_IRC => 'irc://chat.freenode.net/#amusewiki',
+                                 x_WebIRC => 'https://webchat.freenode.net/?channels=#amusewiki',
                                 },
                   },
 

@@ -1,5 +1,8 @@
 Revision history for perl module PDF-Imposition
 
+0.14 2015-03-28
+ - New schema: 1x8x2
+
 0.12 2015-02-01
  - New schema: ea4x4 (this is a weird one)
 
