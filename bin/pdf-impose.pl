@@ -63,7 +63,7 @@ pdf-impose.pl -- script to impose a PDF using the L<PDF::Imposition> class.
 
 =head1 SYNOPSIS
 
-  pdf-impose infile.pdf [outfile.pdf]
+  pdf-impose.pl infile.pdf [outfile.pdf]
 
 This script is a simple wrapper around L<PDF::Imposition>. Refer to
 the perldoc documentation (C<perldoc PDF::Imposition>) for details
@@ -84,7 +84,14 @@ for details about the available schemas.
 
 =item  --cover
 
-Boolean
+Boolean: if the schema supports it, put the last page of the PDF on
+the last page of the last signature if there is a need of blank page
+padding, so when folding the first page and the last page will match.
+
+For example, for a 2up schema, if you have 6 pages, you will get a
+signature of 8 pages, with 2 blank pages at the end. With this option
+you get the two blank pages before the last one, which in turn will be
+put in the same physical page of the first one.
 
 =item --signature | --sig | -s <num>
 
