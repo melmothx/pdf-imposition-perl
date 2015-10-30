@@ -1,4 +1,5 @@
 bin/pdf-impose.pl
+LICENSE
 Changes
 lib/PDF/Imposition.pm
 lib/PDF/Imposition/Schema.pm
