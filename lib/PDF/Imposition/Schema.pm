@@ -120,8 +120,7 @@ sub outfile {
     }
     my $f = $self->{outfile};
     unless ($f) {
-        my ($name, $path, $suffix) = fileparse($self->file,
-                                               ".pdf", ".PDF");
+        my ($name, $path, $suffix) = fileparse($self->file, qr{\.pdf}i);
         die $self->file . " has a suffix not recognized" unless $suffix;
         $f = File::Spec->catfile($path, $name . $self->suffix . $suffix);
         $self->{outfile} = $f;
@@ -242,8 +241,7 @@ Internal usage. The PDF::API2 object used as output.
 sub in_pdf_obj {
     my $self = shift;
     unless ($self->{_input_pdf_obj}) {
-        my ($basename, $path, $suff) = fileparse($self->file,
-                                                 ".pdf", ".PDF");
+        my ($basename, $path, $suff) = fileparse($self->file, qr{\.pdf}i);
         my $tmpfile = File::Spec->catfile($self->_tmp_dir,
                                           $basename . $suff);
         copy($self->file, $tmpfile) or die "copy to $tmpfile failed $!";
@@ -272,8 +270,7 @@ sub out_pdf_obj {
     my $self = shift;
     unless ($self->{_output_pdf_obj}) {
         my $pdf = PDF::API2->new();
-        my ($basename, $path, $suff) = fileparse($self->file,
-                                                 ".pdf", ".PDF");
+        my ($basename, $path, $suff) = fileparse($self->file, qr{\.pdf}i);
         $pdf->info(
                    Creator => 'PDF::Imposition',
                    Producer => 'PDF::API2',
