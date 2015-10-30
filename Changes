@@ -1,5 +1,9 @@
 Revision history for perl module PDF-Imposition
 
+0.15 2015-10-30
+
+ - Fixed bug on fileparse usage which could lead to unexpected results
+
 0.14 2015-03-28
  - New schema: 1x8x2
 
