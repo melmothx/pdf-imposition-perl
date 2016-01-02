@@ -199,27 +199,47 @@ Algorithm taken/stolen from C<psbook> (Angus J. C. Duggan 1991-1995).
 The C<psutils> are still a viable solution if you want to go with the
 PDF->PS->PDF route.
 
+=head3 computed_signature
+
+Return the actual number of signature, resolving 0 to the nearer
+signature.
+
+=head3 total_output_pages
+
+Return the computed number of pages of the output, taking in account
+the signature handling.
+
 =cut
+
+sub computed_signature {
+    my $self = shift;
+    my $signature = $self->signature;
+    if ($signature) {
+        return $signature;
+    }
+    else {
+        my $pages = $self->total_pages;
+        my $ppsheet = $self->pages_per_sheet;
+        return $pages + (($ppsheet - ($pages % $ppsheet)) % $ppsheet);
+    }
+}
+
+sub total_output_pages {
+    my ($self, $pages, $signature) = @_;
+    $pages ||= $self->total_pages;
+    $signature ||= $self->computed_signature;
+    return $pages + (($signature - ($pages % $signature)) % $signature);
+}
 
 sub page_sequence_for_booklet {
     my ($self, $pages, $signature) = @_;
-    unless (defined $pages) {
-        $pages = $self->total_pages;
-    }
-    unless (defined $signature) {
-        $signature = $self->signature;
-    }
-    my (@pgs, $maxpage);
-    use integer;
-    if (!$signature) {
-        # rounding
-        my $ppsheet = $self->pages_per_sheet;
-        $signature = $maxpage =
-          $pages + (($ppsheet - ($pages % $ppsheet)) % $ppsheet);
-    }
-    else {
-        $maxpage = $pages + (($signature - ($pages % $signature)) % $signature)
-    }
+    # if set to 0, get the actual number
+    $signature ||= $self->computed_signature;
+    $pages ||= $self->total_pages;
+    my $maxpage = $self->total_output_pages;
+    my @pgs;
+    {
+        use integer;
     for (my $currentpg = 0; $currentpg < $maxpage; $currentpg++) {
         my $actualpg = $currentpg - ($currentpg % $signature);
         my $modulo = $currentpg % 4;
@@ -235,6 +255,7 @@ sub page_sequence_for_booklet {
             $actualpg = undef;
         }
         push @pgs, $actualpg;
+    }
     }
     my @out;
     # if we want a cover, we need to find the index of the last page,

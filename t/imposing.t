@@ -59,7 +59,6 @@ test_is_deeply($imp,
 $pdffile = create_pdf("2up-20", 1..20);
 $imp = PDF::Imposition->new(file => $pdffile);
 $imp->impose;
-print "****" . $imp->outfile, "\n";
 test_is_deeply($imp,
           [
            [ 20, 1 ],
