@@ -1,6 +1,6 @@
 use strict;
 use warnings;
-use Test::More;
+use Test::More tests => 136;
 use File::Temp;
 use File::Spec::Functions;
 use File::Basename;
@@ -23,10 +23,7 @@ unless (-d $outputdir) {
     mkdir $outputdir or die "Cannot create $outputdir $!";
 }
 
-my $numtest = 58;
-
 if ($pdftotext != 0) {
-    plan tests => $numtest;
     $skipex = 1;
     diag "It appears that pdftotext is not available.";
     diag "I'm just testing that the imposer produces something";
@@ -34,13 +31,51 @@ if ($pdftotext != 0) {
       " in $outputdir";
     diag "Anyway, some testing is way better than no test at all";
 } 
-else {
-    plan tests => $numtest * 2;
-}
 
 diag "Using $testdir as test directory";
 unless (-d $testdir) {
     mkdir $testdir or die "cannot create $testdir => $!";
+}
+
+{
+    my $pdffile = create_pdf("1x1-6", 1..6);
+    my $imp = PDF::Imposition->new(file => $pdffile, signature => '0-20',
+                                   schema => '1x1',);
+    $imp->cover(1);
+    $imp->impose;
+    test_is_deeply($imp,
+                   [ [1], [2], [3], [4], [5], [], [], [6] ],
+                   "Imposing 6 pages OK", 6);
+    is ($imp->signature, 8, "Signature computed ok");
+    is ($imp->computed_signature, 8, "Signature computed ok");
+}
+
+{
+    my $pdffile = create_pdf("1x1-6-nosig", 1..6);
+    my $imp = PDF::Imposition->new(file => $pdffile, cover => 1,
+                                   schema => '1x1',
+                                  );
+    $imp->impose;
+    test_is_deeply($imp,
+                   [ [1], [2], [3], [4], [5], [], [], [6] ],
+                   "Imposing 6 pages OK", 6);
+    is ($imp->signature, 0, "Signature is 0");
+    is ($imp->computed_signature, 8, "Signature computed ok (8)");
+    is ($imp->total_output_pages, 8, "Max page ok (8)");
+}
+
+{
+    my $pdffile = create_pdf("1x1-8", 1..8);
+    my $imp = PDF::Imposition->new(file => $pdffile, cover => 1,
+                                   schema => '1x1',
+                                  );
+    $imp->impose;
+    test_is_deeply($imp,
+                   [ [1], [2], [3], [4], [5], [6], [7], [8] ],
+                   "Imposing 8 pages OK", 8);
+    is ($imp->signature, 0, "Signature is 0");
+    is ($imp->computed_signature, 8, "Signature computed ok (8)");
+    is ($imp->total_output_pages, 8, "Max page ok (8)");
 }
 
 my $pdffile = create_pdf("2up-4", 1..4);
@@ -564,11 +599,11 @@ sub test_is_deeply {
     my ($imposer, $seq, $message, $pages) = @_;
     ok($imposer->outfile, "output is here");
     ok((-f $imposer->outfile), "File created");
-    unless ($skipex) {
+  SKIP:
+    {
+        skip "No pdftotext available", 2 if $skipex;
         my $extracted = extract_pdf($imposer->outfile);
         is_deeply($extracted, $seq, $message) or diag Dumper($extracted);
-    }
-    if ($pages && !$skipex) {
         all_pages_present($imposer->outfile, $pages);
     }
     unlink $imposer->outfile or die "Cannot unlink outfile $!";

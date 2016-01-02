@@ -5,6 +5,7 @@ lib/PDF/Imposition/Schema.pm
 lib/PDF/Imposition/Schema1repeat2side.pm
 lib/PDF/Imposition/Schema1repeat2top.pm
 lib/PDF/Imposition/Schema1repeat4.pm
+lib/PDF/Imposition/Schema1x1.pm
 lib/PDF/Imposition/Schema1x4x2cutfoldbind.pm
 lib/PDF/Imposition/Schema1x8x2.pm
 lib/PDF/Imposition/Schema2down.pm
