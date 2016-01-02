@@ -2,8 +2,7 @@
 use strict;
 use warnings;
 use constant HAS_LEAKTRACE => eval{ require Test::LeakTrace };
-use Test::More (HAS_LEAKTRACE && $ENV{RELEASE_TESTING}) ?
-  (tests => 44) : (skip_all => 'require Test::LeakTrace and RELEASE_TESTING');
+use Test::More skip_all => 'Test with LeakTrace is disabled';
 
 use Test::LeakTrace;
 use PDF::Imposition;
