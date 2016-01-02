@@ -108,19 +108,24 @@ this.
 =cut
 
 sub pages_per_sheet {
-    return shift->{page_per_sheet} || 4;
+    my $num = shift->{pages_per_sheet} || 4;
+    if ($num eq '2' or
+        $num eq '4' or
+        $num eq '8' or
+        $num eq '16' or
+        $num eq '32') {
+        return $num;
+    }
+    else {
+        die "bad number $num";
+    }
 }
 
 sub _set_pages_per_sheet {
     # private
     my ($self, $num) = @_;
     die "bad usage" unless $num;
-    if ($num == 2 or $num == 4 or $num == 8 or $num == 16 or $num == 32) {
-        $self->{page_per_sheet} = $num;
-    }
-    else {
-        die "bad number";
-    }
+    $self->{pages_per_sheet} = $num;
     return $self->pages_per_sheet;
 }
 
