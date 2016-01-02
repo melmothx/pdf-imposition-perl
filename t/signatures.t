@@ -29,8 +29,8 @@ for my $i (1..400) {
     my ($sig, $needed) = $imp->_optimize_signature('39-59', $i);
     print "$needed for $i ($sig)\n" if $needed > 10;
     ok(($sig % 4) == 0);
-    is($sig, $signature, "for $i pages");
-    is($needed, $lua_needed, "for $i pages");
+    is($sig, $signature, "signature is $signature for $i pages");
+    is($needed, $lua_needed, "needed $lua_needed for $i pages");
 }
 close $fh;
 

@@ -92,7 +92,6 @@ single signature, regardeless of its size.
 
 sub pages_per_sheet { 4 };
 
-
 =head2 INTERNALS
 
 =head3 pages_per_sheet
