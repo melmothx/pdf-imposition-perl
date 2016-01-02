@@ -41,12 +41,6 @@ or
 
     $imposer->impose;
   
-=cut
-
-
-
-
-
 =head1 METHODS
 
 =head2 Constructor 
@@ -145,7 +139,8 @@ physical booklet after folding. If C<cover> is set to a true value,
 the last page of the logical pdf will be placed on the last page of
 the last signature.
 
-Individual schema implementations are in charge to check and act on this setting.
+Individual schema implementations are in charge to check and act on
+this setting.
 
 Es.
 
@@ -159,6 +154,108 @@ sub cover {
         $self->{cover} = shift;
     }
     return $self->{cover};
+}
+
+=head3 signature($num_or_range)
+
+The signature, must be a multiple of the C<pages_per_sheet> option
+(usually 4 or 8), or a range, like the string "20-100". If a range is
+selected, the signature is determined heuristically to minimize the
+white pages left on the last signature. The wider the range, the best
+the results.
+
+=cut
+
+sub signature {
+    my $self = shift;
+    if (@_ == 1) {
+        $self->{signature} = shift;
+    }
+    my $sig = $self->{signature} || 0;
+    return $self->_optimize_signature($sig) + 0; # force the scalar context
+}
+
+=head3 pages_per_sheet
+
+The number of logical pages which fit on a sheet, recto-verso. Default
+to 4. it will always return 4. Subclasses usually change this and
+ignore your option unless otherwise specified.
+
+=cut
+
+sub pages_per_sheet {
+    my $num = shift->{pages_per_sheet} || 4;
+    if ($num eq '2' or
+        $num eq '4' or
+        $num eq '8' or
+        $num eq '16' or
+        $num eq '32') {
+        return $num;
+    }
+    else {
+        die "bad number $num";
+    }
+}
+
+sub _optimize_signature {
+    my ($self, $sig, $total_pages) = @_;
+    unless ($total_pages) {
+        $total_pages = $self->total_pages;
+    }
+    return 0 unless $sig;
+    my $ppsheet = $self->pages_per_sheet or die;
+    if ($sig =~ m/^[0-9]+$/s) {
+        die "Signature must be a multiple of $ppsheet" if $sig % $ppsheet;
+        return $sig;
+    }
+    my ($min, $max);
+    if ($sig =~ m/^([0-9]+)?-([0-9]+)?$/s) {
+        $min = $1 || $ppsheet;
+        $max = $2 || $total_pages;
+        $min = $min + (($ppsheet - ($min % $ppsheet)) % $ppsheet);
+        $max = $max + (($ppsheet - ($max % $ppsheet)) % $ppsheet);
+        die "Bad range $max - $min" unless $max > $min;
+        die "bad min $min" if $min % $ppsheet;
+        die "bad max $max" if $max % $ppsheet;
+    }
+    else {
+        die "Unrecognized range $sig";
+    }
+    my $signature = 0;
+    my $roundedpages = $total_pages + (($ppsheet - ($total_pages % $ppsheet)) % $ppsheet);
+    my $needed = $roundedpages - $total_pages;
+    die "Something is wrong" if $roundedpages % $ppsheet;
+    if ($roundedpages <= $min) {
+        wantarray ? return ($roundedpages, $needed) : return $roundedpages;
+    }
+    $signature = $self->_find_signature($roundedpages, $max);
+    if ($roundedpages > $max) {
+        while ($signature < $min) {
+            $roundedpages += $ppsheet;
+            $needed += $ppsheet;
+            $signature = $self->_find_signature($roundedpages, $max)
+        }
+    }
+    # warn "Needed $needed blank pages";
+    wantarray ? return ($signature, $needed) : return $signature;
+}
+
+sub _find_signature {
+    my ($self, $num, $max) = @_;
+    my $ppsheet = $self->pages_per_sheet or die;
+    die "not a multiple of $ppsheet" if $num % $ppsheet;
+    die "uh?" unless $num;
+    my $i = $max;
+    while ($i > 0) {
+        # check if the the pagenumber is divisible by the signature
+        # with modulo 0
+        # warn "trying $i for $num / max $max\n";
+        if (($num % $i) == 0) {
+            return $i;
+        }
+        $i -= $ppsheet;
+    }
+    warn "Looped ended with no result\n";
 }
 
 
@@ -335,6 +432,38 @@ sub DESTROY {
             delete $self->{$f};
         }
     }
+}
+
+=head3 computed_signature
+
+Return the actual number of signature, resolving 0 to the nearer
+signature.
+
+=head3 total_output_pages
+
+Return the computed number of pages of the output, taking in account
+the signature handling.
+
+=cut
+
+sub computed_signature {
+    my $self = shift;
+    my $signature = $self->signature;
+    if ($signature) {
+        return $signature;
+    }
+    else {
+        my $pages = $self->total_pages;
+        my $ppsheet = $self->pages_per_sheet;
+        return $pages + (($ppsheet - ($pages % $ppsheet)) % $ppsheet);
+    }
+}
+
+sub total_output_pages {
+    my ($self, $pages, $signature) = @_;
+    $pages ||= $self->total_pages;
+    $signature ||= $self->computed_signature;
+    return $pages + (($signature - ($pages % $signature)) % $signature);
 }
 
 1;

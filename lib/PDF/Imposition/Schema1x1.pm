@@ -1,7 +1,7 @@
 package PDF::Imposition::Schema1x1;
 use strict;
 use warnings;
-use base "PDF::Imposition::Schema2up";
+use base "PDF::Imposition::Schema";
 
 =head1 NAME
 
@@ -45,10 +45,6 @@ the total output pages with C<total_output_pages>.
 If you don't need any of this, you don't have any reason to use this
 module.
 
-This class inherit everything from L<PDF::Imposition::Schema2up>, so
-refer to the documentation of that module for a full explanation of
-the C<signature>, C<cover> and C<pages_per_sheet> explanation.
-
 =cut
 
 sub _do_impose {
@@ -60,7 +56,8 @@ sub _do_impose {
     my $total_pages = $self->total_pages;
     my $signature = $self->computed_signature;
     my $max_page = $self->total_output_pages;
-    my $needed = ($max_page - $total_pages);
+    my $needed = $max_page - $total_pages;
+    die "negative number of needed pages, this is a bug" if $needed < 0;
     my @sequence = (1 .. $total_pages);
     if ($needed) {
         my $last = pop @sequence;
