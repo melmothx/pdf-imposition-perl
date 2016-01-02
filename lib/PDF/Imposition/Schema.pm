@@ -281,13 +281,6 @@ sub out_pdf_obj {
     return $self->{_output_pdf_obj};
 }
 
-sub _cleanup_objs {
-    my $self = shift;
-    foreach my $f (qw/_output_pdf_obj _input_pdf_obj/) {
-        delete $self->{$f};
-    }
-}
-
 =head3 get_imported_page($pagenumber)
 
 Retrieve the page form object from the input pdf to the output pdf,
@@ -316,7 +309,6 @@ sub impose {
     my $out = $self->_do_impose;
     $self->in_pdf_obj->end;
     $self->out_pdf_obj->end;
-    $self->_cleanup_objs;
     return $out;
 }
 
@@ -333,6 +325,16 @@ sub _now_timestamp {
 sub _format_timestamp {
     my ($self, $epoc) = @_;
     return POSIX::strftime(q{%Y%m%d%H%M%S+00'00'}, localtime($epoc));
+}
+
+sub DESTROY {
+    my $self = shift;
+    foreach my $f (qw/_output_pdf_obj _input_pdf_obj/) {
+        if ($self->{$f}) {
+            $self->{$f}->end;
+            delete $self->{$f};
+        }
+    }
 }
 
 1;
