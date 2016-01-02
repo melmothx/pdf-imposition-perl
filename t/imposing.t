@@ -18,8 +18,9 @@ use Data::Dumper;
 my $pdftotext = system('pdftotext', '-v');
 my $skipex;
 my $testdir = File::Temp->newdir(CLEANUP => 1);
-my $outputdir = catdir("t", "output");
+my $outputdir = catdir("t", "output", $PDF::Imposition::VERSION);
 unless (-d $outputdir) {
+    mkdir catdir("t", "output") unless -d catdir("t", "output");
     mkdir $outputdir or die "Cannot create $outputdir $!";
 }
 
