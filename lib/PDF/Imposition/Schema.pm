@@ -189,22 +189,15 @@ Returns the number of pages
 
 =cut
 
-sub _populate_orig {
-    my $self = shift;
-    my $pdf = CAM::PDF->new($self->file);
-    my ($x, $y, $w, $h) = $pdf->getPageDimensions(1); # use the first page
-    warn $self->file . "use x-y offset, cannot proceed safely" if ($x + $y);
-    die "Cannot retrieve paper dimensions" unless $w && $h;
-    $self->{_dimensions} = { w => sprintf('%.2f', $w),
-                             h => sprintf('%.2f', $h) };
-    $self->{_total_orig_pages} = $pdf->numPages;
-    undef $pdf;
-}
-
 sub dimensions {
     my $self = shift;
     unless ($self->{_dimensions}) {
-        $self->_populate_orig;
+        my $pdf = $self->in_pdf_obj;
+        my ($x, $y, $w, $h) = $pdf->openpage(1)->get_mediabox; # use the first page
+        warn $self->file . "use x-y offset, cannot proceed safely" if ($x + $y);
+        die "Cannot retrieve paper dimensions" unless $w && $h;
+        $self->{_dimensions} = { w => sprintf('%.2f', $w),
+                                 h => sprintf('%.2f', $h) };
     }
     # return a copy
     return { %{$self->{_dimensions}} };
@@ -213,7 +206,12 @@ sub dimensions {
 sub total_pages {
     my $self = shift;
     unless ($self->{_total_orig_pages}) {
-        $self->_populate_orig;
+        my $pdf = $self->in_pdf_obj;
+        my $count = 0;
+        while ($pdf->openpage($count + 1)) {
+            $count++;
+        }
+        $self->{_total_orig_pages} = $count;
     }
     return $self->{_total_orig_pages};
 }
