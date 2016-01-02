@@ -1,6 +1,6 @@
 use strict;
 use warnings;
-use Test::More tests => 136;
+use Test::More tests => 150;
 use File::Temp;
 use File::Spec::Functions;
 use File::Basename;
@@ -78,6 +78,43 @@ unless (-d $testdir) {
     is ($imp->computed_signature, 8, "Signature computed ok (8)");
     is ($imp->total_output_pages, 8, "Max page ok (8)");
 }
+
+{
+    my $pdffile = create_pdf("1x1-10-8pps", 1..10);
+    my $imp = PDF::Imposition->new(file => $pdffile,
+                                   cover => 1,
+                                   schema => '1x1',
+                                   pages_per_sheet => 8,
+                                  );
+    $imp->impose;
+    test_is_deeply($imp,
+                   [ [1], [2], [3], [4], [5], [6], [7], [8],
+                     [9], [], [],   [],  [],  [],  [], [10],
+                   ],
+                   "Imposing 10 pages OK", 10);
+    is ($imp->signature, 0, "Signature is 0");
+    is ($imp->computed_signature, 16, "Signature computed ok (16)");
+    is ($imp->total_output_pages, 16, "Max page ok (8)");
+}
+
+{
+    my $pdffile = create_pdf("1x1-10", 1..10);
+    my $imp = PDF::Imposition->new(file => $pdffile,
+                                   cover => 1,
+                                   schema => '1x1',
+                                  );
+    $imp->impose;
+    test_is_deeply($imp,
+                   [ [1], [2], [3], [4], [5], [6], [7], [8],
+                     [9], [], [],   [10],
+                   ],
+                   "Imposing 10 pages OK", 10);
+    is ($imp->signature, 0, "Signature is 0");
+    is ($imp->computed_signature, 12, "Signature computed ok (12)");
+    is ($imp->total_output_pages, 12, "Max page ok (12)");
+}
+
+
 
 my $pdffile = create_pdf("2up-4", 1..4);
 diag "using $pdffile";
