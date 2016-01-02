@@ -9,14 +9,15 @@ use File::Spec::Functions;
 
 eval "use Test::Memory::Cycle";
 
+my @schemas = PDF::Imposition->available_schemas;
+
 if ($ENV{RELEASE_TESTING} && !$@) {
-    plan tests => 44;
+    plan tests => @schemas * 4;
 }
 else {
     plan skip_all => "No release testing, skipping";
 }
 
-my @schemas = PDF::Imposition->available_schemas;
 foreach my $schema (@schemas) {
     foreach my $testfile (qw/pdfv16.pdf sample2e.pdf/) {
         my $pdf = catfile(t => $testfile);

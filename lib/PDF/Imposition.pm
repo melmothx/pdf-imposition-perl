@@ -119,6 +119,14 @@ See L<PDF::Imposition::Schema1repeat4>
 
 See L<PDF::Imposition::Schemaea4x4>
 
+=item 1x8x2
+
+See L<PDF::Imposition::Schema1x8x2>
+
+=item 1x1
+
+See L<PDF::Imposition::Schema1x1>
+
 =back
 
 =item cover
@@ -161,7 +169,7 @@ E.g.
 sub available_schemas {
     return qw/2up 2down 2side 2x4x2 1x4x2cutfoldbind
               4up 1repeat2top 1repeat2side 1repeat4 ea4x4
-              1x8x2/
+              1x8x2 1x1/
 }
 
 =head1 AUTHOR
