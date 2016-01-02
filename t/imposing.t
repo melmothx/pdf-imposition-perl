@@ -273,17 +273,26 @@ $imp->impose;
 
 test_is_deeply($imp,
           [
-           [ '8', '9', '16', '1' ],
-           [ '10', '7', '2', '15' ], 
+           [ '9', '8',
+             '16', '1' ],
+           [ '7', '10',
+             '2', '15' ],
 
-           [ '6', '11', '14', '3' ], 
-           [ '12', '5', '4', '13' ], 
+           [ '11', '6',
+             '14', '3' ],
+           [ '5', '12',
+             '4', '13' ],
 
-           [ '24', '25', '32', '17' ], 
-           [ '26', '23', '18', '31' ], 
+           [ '25', '24',
+             '32', '17' ],
+           [ '23', '26',
+             '18', '31' ],
 
-           [ '22', '27', '30', '19' ],
-           [ '28', '21', '20', '29' ] 
+           [ '27', '22',
+             '30', '19' ],
+           [ '21', '28',
+             '20', '29' ],
+
           ], "2x4x2 appears to work", 32);
 
 $pdffile = create_pdf("2side", 1..7);
@@ -478,16 +487,16 @@ test_is_deeply($imp, [ [ 1, 1, 1, 1 ], [ 2, 2, 2, 2 ], [ 3, 3, 3, 3 ] ],
 $pdffile = create_pdf("ea4x4", 1..16);
 $imp = PDF::Imposition->new(file => $pdffile, schema => 'ea4x4');
 $imp->impose;
-test_is_deeply($imp, [ [ 4, 13, 16, 1 ], [ 14, 3, 2, 15 ],
-                       [ 8, 9, 12, 5],   [ 10, 7, 6, 11 ] ],
+test_is_deeply($imp, [ [ 13, 4, 16, 1 ], [ 3, 14, 2, 15 ],
+                       [ 9, 8, 12, 5],   [ 7, 10, 6, 11 ] ],
                "ea4x4", 16);
 
 
 $pdffile = create_pdf("ea4x4-odd", 1..17);
 $imp = PDF::Imposition->new(file => $pdffile, schema => 'ea4x4');
 $imp->impose;
-test_is_deeply($imp, [ [ 4, 13, 16, 1 ], [ 14, 3, 2, 15 ],
-                       [ 8, 9, 12, 5],   [ 10, 7, 6, 11 ], [ 17 ] ],
+test_is_deeply($imp, [ [ 13, 4, 16, 1 ], [ 3, 14, 2, 15 ],
+                       [ 9, 8, 12, 5],   [ 7, 10, 6, 11 ], [ 17 ], ],
                "ea4x4-odd", 17);
 
 
@@ -495,9 +504,12 @@ $pdffile = create_pdf("1x8x2", 1..16);
 
 $imp = PDF::Imposition->new(file => $pdffile, schema => '1x8x2');
 $imp->impose;
-# order is messed up here, but output looks good
-test_is_deeply($imp, [ [ 9, 12, 13, 16, 8, 5, 4, 1 ],
-                       [ 11, 10, 15, 14, 6, 7, 2, 3 ]
+
+test_is_deeply($imp, [
+                      [ 5, 12, 9, 8,
+                        4, 13, 16, 1 ],
+                      [ 7, 10, 11, 6,
+                        2, 15, 14, 3 ],
                      ], "1x8x2", 16);
 
 
@@ -510,14 +522,19 @@ sub create_pdf {
     # print "Using $testdir";
     my $pdf = PDF::API2->new();
     # common settings
-    $pdf->mediabox(500,500);
+    $pdf->mediabox(80, 120);
     my $font = $pdf->corefont('Helvetica-Bold');
     for my $p (@pages) {
         my $page = $pdf->page();
         my $text = $page->text();
         $text->font($font, 20);
-        $text->translate(200, 200);
-        $text->text("Page $p");
+        $text->translate(40, 60);
+        $text->text_center("Pg $p");
+        my $line = $page->gfx;
+        $line->linewidth(1);
+        $line->strokecolor('black');
+        $line->rectxy(1, 1, 79, 119);
+        $line->stroke;
     }
     $pdf->saveas($filename);
     return $filename;
@@ -546,7 +563,7 @@ sub extract_pages {
         my @nums;
         # this is (of course) very fragile;
 
-        while ($p =~ m/\s*(Page (\d+))\s*/gs) {
+        while ($p =~ m/\s*(Pg (\d+))\s*/gs) {
             push @nums, $2;
         }
         push @out, \@nums;
@@ -568,7 +585,8 @@ sub test_is_deeply {
     ok((-f $imposer->outfile), "File created");
     unless ($skipex) {
         my $extracted = extract_pdf($imposer->outfile);
-        is_deeply($extracted, $seq, $message) or diag Dumper($extracted);
+        is_deeply($extracted, $seq, $message)
+          or diag "Extracted: " . Dumper($extracted) . " expected " . Dumper($seq);
     }
     if ($pages && !$skipex) {
         all_pages_present($imposer->outfile, $pages);
