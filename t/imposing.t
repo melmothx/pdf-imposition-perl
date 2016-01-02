@@ -508,15 +508,14 @@ sub create_pdf {
     # print "Using $testdir";
     my $pdf = PDF::API2->new();
     # common settings
-    $pdf->mediabox('a5');
+    $pdf->mediabox(500,500);
     my $font = $pdf->corefont('Helvetica-Bold');
     for my $p (@pages) {
         my $page = $pdf->page();
-        my (undef, undef, $w, $h) = $page->get_mediabox;
         my $text = $page->text();
         $text->font($font, 20);
-        $text->translate($w / 2, $h / 2);
-        $text->text_center("Page $p");
+        $text->translate(200, 200);
+        $text->text("Page $p");
     }
     $pdf->saveas($filename);
     return $filename;
