@@ -3,6 +3,10 @@ use strict;
 use warnings;
 use base "PDF::Imposition::Schema";
 
+use constant {
+    DEBUG => $ENV{AMW_DEBUG},
+};
+
 =head1 NAME
 
 PDF::Imposition::Schema1x1 - 1:1 Imposition schema
@@ -41,8 +45,7 @@ the total output pages with C<total_output_pages>.
 
 =back
 
-If you don't need any of this, you don't have any reason to use this
-module.
+This class is meant for B<internal usage>
 
 =cut
 
@@ -74,14 +77,21 @@ sub _do_impose {
     die "negative number of needed pages, this is a bug" if $needed < 0;
     my @sequence = (1 .. $total_pages);
     if ($needed) {
-        my $last = pop @sequence;
+        my $last;
+        if ($self->cover) {
+            $last = pop @sequence;
+        }
         while ($needed > 0) {
             push @sequence, undef;
             $needed--;
         }
-        push @sequence, $last;
+        if ($self->cover) {
+            push @sequence, $last;
+        }
+        die "Something went off" if @sequence != $max_page;
     }
-    die "Something went off" if @sequence != $max_page;
+    die "Something went off: " . scalar(@sequence) . " is not max page $max_page"
+      if @sequence != $max_page;
     foreach my $pageno (@sequence) {
         my $page = $self->out_pdf_obj->page;
         my $gfx = $page->gfx;
@@ -92,5 +102,9 @@ sub _do_impose {
     $self->out_pdf_obj->saveas($self->outfile);
     return $self->outfile;
 }
+
+sub supports_cover { 0 }
+
+sub supports_signature { 0 }
 
 1;

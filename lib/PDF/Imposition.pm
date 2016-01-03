@@ -157,39 +157,41 @@ sub new {
     my $schema = delete $options{schema} || '2up'; #  default
     my $loadclass = __PACKAGE__ . '::Schema' . lc($schema);
     load $loadclass;
+    my %class_options = $loadclass->cropmarks_options;
 
-    if (my $cropmark_paper = $options{cropmarks}) {
+    if (my $cropmark_paper = $options{cropmarks} and lc($schema) ne '1x1' ) {
         my $tmpdir = File::Temp->newdir(CLEANUP => 0);
-
-        require PDF::Imposition::Schema1x1;
         my $target = File::Spec->catfile($tmpdir, 'in.pdf');
-        my %pre_options = (
-                           file => delete $options{file},
-                           signature => delete $options{signature},
-                           cover => delete $options{cover},
-                           outfile => File::Spec->catfile($tmpdir, '1x1.pdf'),
-                          );
-
-        if (lc($schema) eq '1x1') {
-            $pre_options{pages_per_sheet} = 2;
+        my $normalized = $target;
+        my $signature = $loadclass->fixed_signature;
+        if ($loadclass->supports_cover or
+            $loadclass->supports_signature && !$loadclass->fixed_signature) {
+            # pass to 1x1 to normalize
+            require PDF::Imposition::Schema1x1;
+            my %pre_options = (
+                               file => delete $options{file},
+                               signature => $signature || delete $options{signature},
+                               cover => delete $options{cover},
+                               outfile => File::Spec->catfile($tmpdir, '1x1.pdf'),
+                               pages_per_sheet => $loadclass->pages_per_sheet,
+                              );
+            print Dumper(\%pre_options) if DEBUG;
+            my $pre = PDF::Imposition::Schema1x1->new(%pre_options);
+            $pre->impose;
+            $normalized = $pre->outfile;
+            $options{signature} = $signature = $pre->computed_signature;
         }
         else {
-            $pre_options{pages_per_sheet} = $loadclass->pages_per_sheet;
+            $normalized = delete $options{file};
         }
-        print Dumper(\%pre_options) if DEBUG;
-        my $pre = PDF::Imposition::Schema1x1->new(%pre_options);
-        $pre->impose;
 
         require PDF::Cropmarks;
-        my %class_options = $loadclass->cropmarks_options;
-        print Dumper(\%class_options) if DEBUG;
         my %cropper_args = (
-                            input => $pre->outfile,
-                            output => File::Spec->catfile($tmpdir, 'cropped.pdf'),
-                            signature => $pre->computed_signature,
-                            cover => $pre->cover,
-                            paper => $cropmark_paper,
                             %class_options,
+                            input => $normalized,
+                            output => File::Spec->catfile($tmpdir, 'cropped.pdf'),
+                            ($signature ? (signature => $signature) : ()),
+                            paper => $cropmark_paper,
                            );
         if (my $thick = delete $options{cropmarks_paper_thickness}) {
             $cropper_args{paper_thickness} = $thick;
@@ -200,7 +202,6 @@ sub new {
         $cropper->add_cropmarks;
         $options{cropmark_working_dir} = $tmpdir;
         $options{file} = $cropper->output;
-        $options{signature} = $cropper->signature;
     }
 
     print Dumper(\%options) if DEBUG;

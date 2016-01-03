@@ -9,7 +9,7 @@ use File::Spec::Functions;
 
 my @schemas = PDF::Imposition->available_schemas;
 
-plan tests => @schemas * 2;
+plan tests => @schemas * 4;
 
 my $testdir = File::Temp->newdir(CLEANUP => 1);
 my $outputdir = catdir("t", "output", $PDF::Imposition::VERSION . '-cropmarks');
@@ -39,17 +39,29 @@ my $pdf = catfile($testdir, 'input.pdf');
     $pdfobj->saveas($pdf);
 }
 
+my %enabled = (
+               '1x1' => 0,
+               '2up' => 1,
+              );
 
 foreach my $schema (@schemas) {
-    my $out = catfile($outputdir, $schema . '-cropmarks.pdf');
-    unlink $out if $out;
-    diag "Testing cropmarks against $schema";
-    ok (! -f $out, "Directory clean, no $out");
-    my $imposer = PDF::Imposition->new(schema => $schema,
-                                       file => $pdf,
-                                       outfile => $out,
-                                       cropmarks => "150pt:200pt");
-    $imposer->impose;
-    ok (-f $out, "$out produced");
+    foreach my $cover (0..1) {
+      SKIP: {
+            skip "$schema test disabled", 2 unless $enabled{$schema};
+            my $out = catfile($outputdir, $schema . ($cover ? '-cover' : '')
+                              . '-cropmarks.pdf');
+            unlink $out if $out;
+            diag "Testing cropmarks against $schema, cover: $cover";
+            ok (! -f $out, "Directory clean, no $out");
+            my $imposer = PDF::Imposition->new(schema => $schema,
+                                               file => $pdf,
+                                               outfile => $out,
+                                               cover => $cover,
+                                               cropmarks_paper_thickness => '5mm',
+                                               cropmarks => "150pt:200pt");
+            $imposer->impose;
+            ok (-f $out, "$out produced");
+        }
+    }
 }
 

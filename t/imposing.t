@@ -1,6 +1,6 @@
 use strict;
 use warnings;
-use Test::More tests => 150;
+use Test::More tests => 158;
 use File::Temp;
 use File::Spec::Functions;
 use File::Basename;
@@ -113,6 +113,24 @@ unless (-d $testdir) {
     is ($imp->computed_signature, 12, "Signature computed ok (12)");
     is ($imp->total_output_pages, 12, "Max page ok (12)");
 }
+
+{
+    my $pdffile = create_pdf("1x1-10", 1..10);
+    my $imp = PDF::Imposition->new(file => $pdffile,
+                                   schema => '1x1',
+                                  );
+    $imp->impose;
+    test_is_deeply($imp,
+                   [ [1], [2], [3], [4], [5], [6], [7], [8],
+                     [9], [10],
+                   ],
+                   "Imposing 10 pages OK", 10);
+    is ($imp->signature, 0, "Signature is 0");
+    ok (!$imp->cover, "No cover set");
+    is ($imp->computed_signature, 12, "Signature computed ok (12)");
+    is ($imp->total_output_pages, 12, "Max page ok (12)");
+}
+
 
 
 

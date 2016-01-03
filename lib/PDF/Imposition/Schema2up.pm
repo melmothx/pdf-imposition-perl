@@ -201,6 +201,14 @@ sub _do_impose {
 
 Set twoside to true and inner to false (where the binding is).
 
+=head2 supports_cover
+
+True
+
+=head2 supports_signature
+
+True
+
 =cut
 
 sub cropmarks_options {
@@ -213,6 +221,10 @@ sub cropmarks_options {
                );
     return %opts;
 }
+
+sub supports_cover { 1 }
+
+sub supports_signature { 1 }
 
 
 1;

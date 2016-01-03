@@ -470,6 +470,28 @@ sub cropmarks_options {
     return %opts;
 }
 
+=head2 supports_cover
+
+Default to false. Subclasses with cover support should override this.
+
+=cut
+
+sub supports_cover { 0 };
+
+=head2 fixed_signature
+
+Return pages per signature if it's a fixed value, 0 otherwise.
+
+=head2 supports_signature
+
+Returns true if the concept of signature makes sense in the class.
+
+=cut
+
+sub fixed_signature { 0 };
+
+sub supports_signature { 0 };
+
 1;
 
 =head1 SEE ALSO
