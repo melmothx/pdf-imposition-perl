@@ -127,7 +127,33 @@ sub _compose_eight {
 
 }
 
-1;
+=head1 INTERNALS
+
+=head2 pages_per_sheet
+
+Returns 16.
+
+=cut
+
+sub pages_per_sheet { 16 };
+
+=head2 cropmark_options
+
+Set twoside true, inner to false and signature 16.
+
+=cut
+
+sub cropmarks_options {
+    my %opts = (
+                twoside => 1,
+                top => 1,
+                bottom => 1,
+                inner => 0,
+                outer => 1,
+                signature => 16,
+               );
+    return %opts;
+}
 
 =head1 SEE ALSO
 
@@ -135,4 +161,5 @@ L<PDF::Imposition>
 
 =cut
 
+1;
 

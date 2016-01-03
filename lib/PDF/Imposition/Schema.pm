@@ -183,19 +183,7 @@ ignore your option unless otherwise specified.
 
 =cut
 
-sub pages_per_sheet {
-    my $num = shift->{pages_per_sheet} || 4;
-    if ($num eq '2' or
-        $num eq '4' or
-        $num eq '8' or
-        $num eq '16' or
-        $num eq '32') {
-        return $num;
-    }
-    else {
-        die "bad number $num";
-    }
-}
+sub pages_per_sheet { 4 };
 
 sub _optimize_signature {
     my ($self, $sig, $total_pages) = @_;
@@ -464,6 +452,22 @@ sub total_output_pages {
     $pages ||= $self->total_pages;
     $signature ||= $self->computed_signature;
     return $pages + (($signature - ($pages % $signature)) % $signature);
+}
+
+=head2 cropmark_options
+
+Default is twoside false, and centered cropmarks;
+
+=cut
+
+sub cropmarks_options {
+    my %opts = (twoside => 0,
+                top => 1,
+                bottom => 1,
+                inner => 1,
+                outer => 1,
+               );
+    return %opts;
 }
 
 1;

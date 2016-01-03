@@ -50,4 +50,14 @@ sub _do_impose {
     return $self->outfile;
 }
 
+=head1 INTERNALS
+
+=head2 pages_per_sheet
+
+Returns 4.
+
+=cut
+
+sub pages_per_sheet { 4 };
+
 1;

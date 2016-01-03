@@ -88,9 +88,34 @@ sub _compose_quadruple {
     $gfx->formimage($chunk, 0, $self->orig_height) if $chunk;
 }
 
+=head1 INTERNALS
+
+=head2 pages_per_sheet
+
+Returns 8.
+
+=cut
+
+sub pages_per_sheet { 8 };
+
+=head2 cropmark_options
+
+Set twoside true, inner false and signature 8.
+
+=cut
+
+sub cropmarks_options {
+    my %opts = (
+                twoside => 1,
+                top => 1,
+                bottom => 1,
+                inner => 0,
+                outer => 1,
+                signature => 8,
+               );
+    return %opts;
+}
+
+
 1;
-
-
-
-
 

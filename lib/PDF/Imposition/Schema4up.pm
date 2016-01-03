@@ -45,7 +45,6 @@ It's basically a shortcut to save paper if you impose, e.g. A6 on A4.
 
 Always return 8.
 
-
 =cut
 
 sub pages_per_sheet { 8 };
@@ -102,6 +101,24 @@ sub _do_impose {
     $self->out_pdf_obj->saveas($self->outfile);
     return $self->outfile;
 }
+
+=head2 cropmark_options
+
+Set twoside to true and inner to false (where the binding is).
+
+=cut
+
+sub cropmarks_options {
+    my %opts = (
+                twoside => 1,
+                top => 1,
+                bottom => 1,
+                inner => 0,
+                outer => 1,
+               );
+    return %opts;
+}
+
 
 
 1;

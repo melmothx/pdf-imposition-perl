@@ -18,8 +18,7 @@ PDF::Imposition::Schema1x1 - 1:1 Imposition schema
                                                   pages_per_sheet => 4,
                                                  );
     $imposer->impose;
-
-The output pdf will be in C<$imposer->output>
+    # the output pdf will be in $imposer->output
 
 =head1 SCHEMA EXPLANATION
 
@@ -46,6 +45,21 @@ If you don't need any of this, you don't have any reason to use this
 module.
 
 =cut
+
+sub pages_per_sheet {
+    my $num = shift->{pages_per_sheet} || 4;
+    if ($num eq '1' or
+        $num eq '2' or
+        $num eq '4' or
+        $num eq '8' or
+        $num eq '16' or
+        $num eq '32') {
+        return $num;
+    }
+    else {
+        die "bad number $num";
+    }
+}
 
 sub _do_impose {
     my $self = shift;

@@ -45,7 +45,15 @@ This corresponds to C<psnup -2> in the <psutils>.
 The last logical page will be empty if the number of pages of the
 original PDF is odd.
 
+=head1 INTERNALS
+
+=head2 pages_per_sheet
+
+Returns 4.
+
 =cut
+
+sub pages_per_sheet { 4 };
 
 sub _do_impose {
     my $self = shift;

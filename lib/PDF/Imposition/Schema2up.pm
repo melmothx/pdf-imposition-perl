@@ -197,6 +197,24 @@ sub _do_impose {
     return $self->outfile;
 }
 
+=head2 cropmark_options
+
+Set twoside to true and inner to false (where the binding is).
+
+=cut
+
+sub cropmarks_options {
+    my %opts = (
+                twoside => 1,
+                top => 1,
+                bottom => 1,
+                inner => 0,
+                outer => 1,
+               );
+    return %opts;
+}
+
+
 1;
 
 =head1 SEE ALSO

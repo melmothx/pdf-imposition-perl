@@ -2,8 +2,10 @@ package PDF::Imposition;
 
 use strict;
 use warnings;
-
+use Data::Dumper;
+use File::Temp;
 use Module::Load;
+use File::Spec;
 
 =head1 NAME
 
@@ -17,6 +19,9 @@ Version 0.16
 
 our $VERSION = '0.16';
 
+use constant {
+    DEBUG => $ENV{AMW_DEBUG},
+};
 
 =head1 SYNOPSIS
 
@@ -150,9 +155,58 @@ sub new {
         delete $options{$k} if index($k, "_") == 0;
     }
     my $schema = delete $options{schema} || '2up'; #  default
-    my $loadclass = __PACKAGE__ . '::Schema' . $schema;
+    my $loadclass = __PACKAGE__ . '::Schema' . lc($schema);
     load $loadclass;
-    return $loadclass->new(%options);
+
+    if (my $cropmark_paper = $options{cropmarks}) {
+        my $tmpdir = File::Temp->newdir(CLEANUP => 0);
+
+        require PDF::Imposition::Schema1x1;
+        my $target = File::Spec->catfile($tmpdir, 'in.pdf');
+        my %pre_options = (
+                           file => delete $options{file},
+                           signature => delete $options{signature},
+                           cover => delete $options{cover},
+                           outfile => File::Spec->catfile($tmpdir, '1x1.pdf'),
+                          );
+
+        if (lc($schema) eq '1x1') {
+            $pre_options{pages_per_sheet} = 2;
+        }
+        else {
+            $pre_options{pages_per_sheet} = $loadclass->pages_per_sheet;
+        }
+        print Dumper(\%pre_options) if DEBUG;
+        my $pre = PDF::Imposition::Schema1x1->new(%pre_options);
+        $pre->impose;
+
+        require PDF::Cropmarks;
+        my %class_options = $loadclass->cropmarks_options;
+        print Dumper(\%class_options) if DEBUG;
+        my %cropper_args = (
+                            input => $pre->outfile,
+                            output => File::Spec->catfile($tmpdir, 'cropped.pdf'),
+                            signature => $pre->computed_signature,
+                            cover => $pre->cover,
+                            paper => $cropmark_paper,
+                            %class_options,
+                           );
+        if (my $thick = delete $options{cropmarks_paper_thickness}) {
+            $cropper_args{paper_thickness} = $thick;
+        }
+
+        print Dumper(\%cropper_args) if DEBUG;
+        my $cropper = PDF::Cropmarks->new(%cropper_args);
+        $cropper->add_cropmarks;
+        $options{cropmark_working_dir} = $tmpdir;
+        $options{file} = $cropper->output;
+        $options{signature} = $cropper->signature;
+    }
+
+    print Dumper(\%options) if DEBUG;
+    my $obj = $loadclass->new(%options);
+    print Dumper($obj) if DEBUG;
+    return $obj;
 }
 
 =head2 available_schemas
