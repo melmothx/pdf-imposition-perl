@@ -42,6 +42,7 @@ my $pdf = catfile($testdir, 'input.pdf');
 my %enabled = (
                '1x1' => 0,
                '2up' => 1,
+               '2down' => 1,
               );
 
 foreach my $schema (@schemas) {

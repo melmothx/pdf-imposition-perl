@@ -77,8 +77,8 @@ Set twoside to true and top to false (where the binding is).
 
 sub cropmarks_options {
     my %opts = (
-                twoside => 1,
-                top => 0,
+                twoside => 0,
+                top => 1,
                 bottom => 1,
                 inner => 1,
                 outer => 1,
