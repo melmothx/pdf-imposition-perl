@@ -28,11 +28,10 @@ degrees counter-clockwise, so a signature of 4 pages looks so:
         +------+------+   +------+------+   
 
 Now, showing the number rotated by 90 degrees is a bit complicated in
-ASCII-art, but each right logical page is B<rotated
-counter-clockwise>, while the left logical page is rotated clockwise,
-so you have to bind it on the short edge (and the final product will
-look much more like a notepad than a booklet, as the binding will fall
-on the top edge).
+ASCII-art, but each logical page is B<rotated counter-clockwise>, so
+you have to bind it on the short edge (and the final product will look
+much more like a notepad than a booklet, as the binding will fall on
+the top edge).
 
 I find this schema odd, but I provide it nevertheless.
 
@@ -51,22 +50,19 @@ sub _do_impose {
         my $right = $p->[1];
         my $page = $self->out_pdf_obj->page();
         my $gfx = $page->gfx();
-
-        $gfx->transform ( -translate => [ 0 , $self->orig_width],
-                          -rotate => 270 );
+        $gfx->transform (
+                          -translate => [$self->orig_height, 0],
+                          -rotate => 90
+                         );
         if (defined $left) {
             my $lpage = $self->out_pdf_obj
               ->importPageIntoForm($self->in_pdf_obj, $left);
             $gfx->formimage($lpage);
         }
-
-        $gfx->transform ( -translate => [ $self->orig_width, 2 * $self->orig_height ],
-                          -rotate => 180 );
-
         if (defined $right) {
             my $rpage = $self->out_pdf_obj
               ->importPageIntoForm($self->in_pdf_obj, $right);
-            $gfx->formimage($rpage);
+            $gfx->formimage($rpage, 0, 0 - $self->orig_height);
         }
     }
     $self->out_pdf_obj->saveas($self->outfile);
@@ -75,13 +71,13 @@ sub _do_impose {
 
 =head2 cropmark_options
 
-Set twoside to true and top to false (where the binding is)
+Set twoside to true and top to false (where the binding is).
 
 =cut
 
 sub cropmarks_options {
     my %opts = (
-                twoside => 0, # right now we don't do shifting on the top
+                twoside => 1,
                 top => 0,
                 bottom => 1,
                 inner => 1,
