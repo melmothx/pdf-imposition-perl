@@ -24,7 +24,7 @@ my $pdf = catfile($testdir, 'input.pdf');
         # common settings
     $pdfobj->mediabox(80, 120);
     my $font = $pdfobj->corefont('Helvetica-Bold');
-    for my $p (1..15) {
+    for my $p (1..13) {
         my $page = $pdfobj->page();
         my $text = $page->text();
         $text->font($font, 20);
@@ -43,6 +43,7 @@ my %enabled = (
                '1x1' => 0,
                '2up' => 1,
                '2down' => 1,
+               '2side' => 1,
               );
 
 foreach my $schema (@schemas) {

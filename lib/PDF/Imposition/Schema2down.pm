@@ -71,7 +71,7 @@ sub _do_impose {
 
 =head2 cropmark_options
 
-Set twoside to true and top to false (where the binding is).
+Set twoside to false.
 
 =cut
 

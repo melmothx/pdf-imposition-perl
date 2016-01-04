@@ -80,6 +80,26 @@ sub _do_impose {
     return $self->outfile;
 }
 
+=head2 cropmark_options
+
+Set twoside to false.
+
+=cut
+
+sub cropmarks_options {
+    my %opts = (
+                twoside => 1,
+                top => 1,
+                bottom => 1,
+                inner => 1,
+                outer => 0,
+               );
+    return %opts;
+}
+
+sub supports_signature { 1 };
+
+sub fixed_signature { 4 };
 
 1;
 
