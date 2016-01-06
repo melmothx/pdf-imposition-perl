@@ -3,6 +3,9 @@ package PDF::Imposition::Schema1x4x2cutfoldbind;
 use strict;
 use warnings;
 
+use Types::Standard qw/Bool/;
+use namespace::clean;
+
 use Moo;
 with 'PDF::Imposition::Schema';
 
@@ -43,8 +46,15 @@ B<bind> the spine. (Hence the name of the module).
 Does it sound weird? Well, kind of. Looks like a lot of manual work.
 But if it works for you, it works for me as well.
 
+=head1 METHODS
+
+=head2 cover
+
+This schema supports the cover option.
+
 =cut
 
+has cover => (is => 'rw', isa => Bool);
 
 sub _do_impose {
     my $self = shift;

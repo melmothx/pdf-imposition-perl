@@ -1,6 +1,11 @@
 package PDF::Imposition::Schema1x1;
 use strict;
 use warnings;
+
+use Types::Standard qw/Bool/;
+use namespace::clean;
+
+
 use Moo;
 with "PDF::Imposition::Schema";
 
@@ -47,7 +52,13 @@ the total output pages with C<total_output_pages>.
 If you don't need any of this, you don't have any reason to use this
 module.
 
+=head2 cover
+
+This schema supports the cover option.
+
 =cut
+
+has cover => (is => 'rw', isa => Bool);
 
 sub _do_impose {
     my $self = shift;

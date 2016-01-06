@@ -127,7 +127,17 @@ See L<PDF::Imposition::Schema1x1>
 =item cover
 
 If the last logical page must be placed at the very end, B<after> the
-blank pages used to pad the signature. (C<2up> and C<2down> only).
+blank pages used to pad the signature. (C<2up>, C<2down>
+C<1x4x2cutfoldbind>, C<4up>, C<1x1> only).
+
+Often it happens that we want the last page of the pdf to be the last
+one on the physical booklet after folding. If C<cover> is set to a
+true value, the last page of the logical pdf will be placed on the
+last page of the last signature.
+
+=cut
+
+
 
 =item signature
 

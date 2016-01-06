@@ -87,26 +87,6 @@ has suffix => (is => 'rw',
                isa => Str,
                default => sub { '-imp' });
 
-=head3 cover
-
-This option is ignored for 2x4x2 and 2side schemas. Often it happens
-that we want the last page of the pdf to be the last one on the
-physical booklet after folding. If C<cover> is set to a true value,
-the last page of the logical pdf will be placed on the last page of
-the last signature.
-
-Individual schema implementations are in charge to check and act on
-this setting.
-
-Es.
-
-  $imposer->cover(1);
-
-=cut
-
-has cover => (is => 'rw',
-              isa => Bool);
-
 =head3 signature($num_or_range)
 
 The signature, must be a multiple of the C<pages_per_sheet> option

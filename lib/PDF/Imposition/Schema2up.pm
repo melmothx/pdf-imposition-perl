@@ -1,8 +1,14 @@
 package PDF::Imposition::Schema2up;
 use strict;
 use warnings;
+
+use Types::Standard qw/Bool/;
+use namespace::clean;
+
 use Moo;
 with 'PDF::Imposition::Schema';
+
+
 
 =head1 NAME
 
@@ -92,6 +98,15 @@ single signature, regardeless of its size.
 =cut
 
 sub pages_per_sheet { 4 };
+
+=head3 cover
+
+This schema supports the cover option.
+
+=cut
+
+has cover => (is => 'rw', isa => Bool);
+
 
 =head2 INTERNALS
 
