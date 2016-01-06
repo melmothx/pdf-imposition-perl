@@ -24,6 +24,7 @@ t/accessors.t
 t/available.t
 t/basics.t
 t/changes.t
+t/cropmarks.t
 t/imposing.t
 t/leaks.t
 t/manifest.t

@@ -177,7 +177,7 @@ sub _find_signature {
 
 
 
-=head2 Internal accessors
+=head2 Internal methods accessors
 
 The following methods are used internally but documented for schema's
 authors.
@@ -386,6 +386,10 @@ signature.
 
 Return the computed number of pages of the output, taking in account
 the signature handling.
+
+=head3 DEMOLISH
+
+Object cleanup.
 
 =cut
 

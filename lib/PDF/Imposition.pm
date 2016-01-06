@@ -48,27 +48,21 @@ have all the pages with the same dimensions).
 
 =head1 METHODS
 
-=head2 new ( file => $file, schema => $schema, ...)
+=head2 Costructor options and accessors
 
-Constructor.
-
-=head3 Options
-
-=over 4
-
-=item file
+=head3 file
 
 The input file
 
-=item outfile
+=head3 outfile
 
 The output file
 
-=item suffix
+=head3 suffix
 
 The suffix of the output file (don't mix the two options).
 
-=item schema
+=head3 schema
 
 The schema to use.
 
@@ -124,7 +118,7 @@ See L<PDF::Imposition::Schema1x1>
 
 =back
 
-=item cover
+=head3 cover
 
 If the last logical page must be placed at the very end, B<after> the
 blank pages used to pad the signature. (C<2up>, C<2down>
@@ -135,17 +129,35 @@ one on the physical booklet after folding. If C<cover> is set to a
 true value, the last page of the logical pdf will be placed on the
 last page of the last signature.
 
-=cut
-
-
-
-=item signature
+=head3 signature
 
 The signature (integer multiple of four or range): C<2up> and C<2down> only.
 
-=back
+=head3 paper
+
+Passing this option triggers the cropmarks. While the original
+dimensions are left unchanged, this size represents the size of the
+logical page which is actually imposed.
+
+For example, you have a PDF in a6, you pass C<a5> as paper, and schema
+C<2up>, you are going to get an a4 with 2 a6 with cropmarks.
+
+This option is passed to L<PDF::Cropmarks>. See the module
+documentation for the accepted values.
+
+
+=head3 paper_thickness
+
+This option is passed to L<PDF::Cropmarks>. See the module
+documentation for the accepted values.
+
+=head2 impose
+
+Main method which does the actual job. You have to call this to get
+your file. It returns the output filename.
 
 =cut
+
 
 
 sub BUILDARGS {
@@ -201,6 +213,16 @@ sub available_schemas {
               4up 1repeat2top 1repeat2side 1repeat4 ea4x4
               1x8x2 1x1/
 }
+
+=head1 INTERNALS
+
+=over 4
+
+=item BUILDARGS
+
+=item imposer
+
+=back
 
 =head1 AUTHOR
 
