@@ -3,15 +3,14 @@
 use strict;
 use warnings;
 use Test::More;
-use PDF::Imposition;
+use PDF::Imposition::Schema2up;
 use File::Spec::Functions;
 
 plan tests => 1262;
 
-my $imp = PDF::Imposition->new;
 diag "Testing the lower range";
 for my $i (1..50) {
-    my $sig = $imp->_optimize_signature('50-100', $i);
+    my $sig = PDF::Imposition::Schema2up->_optimize_signature('50-100', $i);
     my $roundedup = round_to_four($i);
     if (($i % 4) == 0) {
         is($sig, $i);
@@ -26,7 +25,7 @@ for my $i (1..400) {
     chomp $lua;
     my ($orig, $total, $signature, $lua_needed) = split / +/, $lua;
     die unless $orig == $i;
-    my ($sig, $needed) = $imp->_optimize_signature('39-59', $i);
+    my ($sig, $needed) = PDF::Imposition::Schema2up->_optimize_signature('39-59', $i);
     print "$needed for $i ($sig)\n" if $needed > 10;
     ok(($sig % 4) == 0);
     is($sig, $signature, "signature is $signature for $i pages");

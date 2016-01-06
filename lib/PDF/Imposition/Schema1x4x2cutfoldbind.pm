@@ -3,7 +3,8 @@ package PDF::Imposition::Schema1x4x2cutfoldbind;
 use strict;
 use warnings;
 
-use base qw/PDF::Imposition::Schema/;
+use Moo;
+with 'PDF::Imposition::Schema';
 
 =head1 NAME
 
@@ -69,8 +70,6 @@ sub _do_impose {
         $self->_compose_quadruple($p8, $p5, $p1, $p4);
         $self->_compose_quadruple($p6, $p7, $p3, $p2);
     }
-    $self->out_pdf_obj->saveas($self->outfile);
-    return $self->outfile;
 }
 
 sub _compose_quadruple {

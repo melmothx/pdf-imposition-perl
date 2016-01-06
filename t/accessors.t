@@ -69,7 +69,7 @@ ok($err, "directory raises exception");
 $err = 0;
 $pdfi->file("README");
 try {
-    $pdfi->outfile;
+    $pdfi->_outfilename;
 } catch {
     print $_;
     $err++;
@@ -80,8 +80,8 @@ ok($err, "not a pdf raises exception when calling ->outfile");
 sub testaccessors {
     my $pdf = shift;
     # print Dumper($pdf);
-    ok($pdf->outfile, "outfile ok" . $pdf->outfile);
-    is($pdf->outfile, catfile(t => "sample2e-test.pdf"), "sample2-test.pdf");
+    ok($pdf->_outfilename, "outfile ok") and $pdf->outfile;
+    is($pdf->_outfilename, catfile(t => "sample2e-test.pdf"), "sample2-test.pdf");
     is($pdf->cover, 1, "cover is true");
     is($pdf->suffix, "-test", "suffix exists");
     $pdf->outfile("test.pdf");

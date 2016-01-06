@@ -1,6 +1,6 @@
 use strict;
 use warnings;
-use Test::More tests => 150;
+use Test::More tests => 149;
 use File::Temp;
 use File::Spec::Functions;
 use File::Basename;
@@ -44,10 +44,10 @@ unless (-d $testdir) {
                                    schema => '1x1',);
     $imp->cover(1);
     $imp->impose;
+
     test_is_deeply($imp,
                    [ [1], [2], [3], [4], [5], [], [], [6] ],
                    "Imposing 6 pages OK", 6);
-    is ($imp->signature, 8, "Signature computed ok");
     is ($imp->computed_signature, 8, "Signature computed ok");
 }
 

@@ -2,8 +2,8 @@ package PDF::Imposition::Schema4up;
 
 use strict;
 use warnings FATAL => 'all';
-
-use base 'PDF::Imposition::Schema2up';
+use Moo;
+extends 'PDF::Imposition::Schema2up';
 
 =head1 NAME
 
@@ -54,7 +54,7 @@ sub _do_impose {
     my $self = shift;
     # each physical page, 4 logical pages, recto-verso = 8
     die if $self->pages_per_sheet != 8;
-    if ($self->signature % 8) {
+    if ($self->computed_signature % 8) {
         die "Signature must be a multiple of 8!\n";
     }
 
@@ -99,8 +99,6 @@ sub _do_impose {
                         0,
                         $self->orig_height) if $chunk;
     }
-    $self->out_pdf_obj->saveas($self->outfile);
-    return $self->outfile;
 }
 
 

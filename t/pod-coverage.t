@@ -7,7 +7,8 @@ use Test::More;
 my $min_tpc = 1.08;
 eval "use Test::Pod::Coverage $min_tpc";
 plan skip_all => "Test::Pod::Coverage $min_tpc required for testing POD coverage"
-    if $@;
+  if $@;
+plan skip_all => "Not required for installation" unless $ENV{RELEASE_TESTING};
 
 # Test::Pod::Coverage doesn't require a minimum Pod::Coverage version,
 # but older versions don't recognize some common documentation styles

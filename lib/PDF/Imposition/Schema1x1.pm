@@ -1,7 +1,9 @@
 package PDF::Imposition::Schema1x1;
 use strict;
 use warnings;
-use base "PDF::Imposition::Schema";
+use Moo;
+with "PDF::Imposition::Schema";
+
 
 =head1 NAME
 
@@ -75,8 +77,6 @@ sub _do_impose {
             $gfx->formimage($chunk, 0, 0);
         }
     }
-    $self->out_pdf_obj->saveas($self->outfile);
-    return $self->outfile;
 }
 
 1;

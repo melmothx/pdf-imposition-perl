@@ -2,7 +2,8 @@ package PDF::Imposition::Schema2down;
 use strict;
 use warnings FATAL => 'all';
 
-use base qw/PDF::Imposition::Schema2up/;
+use Moo;
+extends 'PDF::Imposition::Schema2up';
 
 =head1 NAME
 
@@ -65,8 +66,6 @@ sub _do_impose {
             $gfx->formimage($rpage, 0, 0 - $self->orig_height);
         }
     }
-    $self->out_pdf_obj->saveas($self->outfile);
-    return $self->outfile;
 }
 
 1;

@@ -9,17 +9,23 @@ use PDF::API2;
 use File::Temp ();
 use File::Copy;
 use POSIX ();
+use Types::Standard qw/Int Bool Num HashRef Str Maybe Object Enum/;
+
+use Moo::Role;
+requires qw(_do_impose);
+
+use constant { DEBUG => $ENV{AMW_DEBUG} };
 
 =head1 NAME
 
-PDF::Imposition::Schema - Base class for the imposition schemas.
+PDF::Imposition::Schema - Role for the imposition schemas.
 
 =head1 SYNOPSIS
 
-Please don't use this class directly, but use L<PDF::Imposition> or
-the right schema class, which inherit from this (which in turns
-defines the shared methods). B<This class does not do anything useful
-by itself, but only provides some shared methods>.
+This class provides the shared method for real imposition schemas and
+can't me called directly.
+
+Consuming classes must provide a C<_do_impose> method.
 
     use PDF::Imposition;
     my $imposer = PDF::Imposition->new(file => "test.pdf",
@@ -43,27 +49,6 @@ or
   
 =head1 METHODS
 
-=head2 Constructor 
-
-=head3 new(file => "file.pdf", suffix => "-imp", cover => 0, [...])
-
-Costructor. Options should be passed as list. The options are the same
-of the read-write accessors describe below, so passing
-C<< $self->file("file.pdf") >> is exactly the same of passing
-C<< $self->new(file => "file.pdf") >>.
-
-=cut
-
-sub new {
-    my ($class, %options) = @_;
-    foreach my $k (keys %options) {
-        # clean the options from internals
-        delete $options{$k} if index($k, "_") == 0;
-    }
-    my $self = \%options;
-    bless $self, $class;
-}
-
 =head2 Read/write accessors
 
 All the following accessors accept an argument, which sets the
@@ -75,24 +60,11 @@ Unsurprisingly, the input file, which must exist.
 
 =cut
 
-sub file {
-    my $self = shift;
-    if (@_ == 1) {
-        $self->{file} = shift;
-    }
-    my $f = $self->{file} || "";
-    die "$f is not a file" unless -f $f;
-    return $f;
-}
+has file => (is => 'rw',
+             isa => sub { die "$_[0] is not a file " unless $_[0] && -f $_[0] });
 
-sub _tmp_dir {
-    my $self = shift;
-    unless ($self->{_tmp_dir}) {
-        $self->{_tmp_dir} = File::Temp->newdir(CLEANUP => 1);
-    }
-    return $self->{_tmp_dir};
-}
-
+has _tmp_dir => (is => 'ro',
+                 default => sub { File::Temp->newdir(CLEANUP => 1); });
 
 =head3 outfile
 
@@ -107,29 +79,13 @@ replaced merciless.
 
 =cut
 
-sub outfile {
-    my $self = shift;
-    if (@_ == 1) {
-        $self->{outfile} = shift;
-    }
-    my $f = $self->{outfile};
-    unless ($f) {
-        my ($name, $path, $suffix) = fileparse($self->file, qr{\.pdf}i);
-        die $self->file . " has a suffix not recognized" unless $suffix;
-        $f = File::Spec->catfile($path, $name . $self->suffix . $suffix);
-        $self->{outfile} = $f;
-    }
-    return $f;
-}
+has outfile =>  (is => 'rw',
+                 isa => sub { die "$_[0] is not a pdf file"
+                                unless $_[0] && $_[0] =~ m/\.pdf\z/i });
 
-sub suffix {
-    my $self = shift;
-    if (@_ == 1) {
-        $self->{suffix} = shift;
-    }
-    return $self->{suffix} || "-imp";
-}
-
+has suffix => (is => 'rw',
+               isa => Str,
+               default => sub { '-imp' });
 
 =head3 cover
 
@@ -148,13 +104,8 @@ Es.
 
 =cut
 
-sub cover {
-    my $self = shift;
-    if (@_ == 1) {
-        $self->{cover} = shift;
-    }
-    return $self->{cover};
-}
+has cover => (is => 'rw',
+              isa => Bool);
 
 =head3 signature($num_or_range)
 
@@ -166,14 +117,9 @@ the results.
 
 =cut
 
-sub signature {
-    my $self = shift;
-    if (@_ == 1) {
-        $self->{signature} = shift;
-    }
-    my $sig = $self->{signature} || 0;
-    return $self->_optimize_signature($sig) + 0; # force the scalar context
-}
+has signature => (is => 'rw',
+                  isa => Str,
+                  default => sub { '0' });
 
 =head3 pages_per_sheet
 
@@ -183,19 +129,9 @@ ignore your option unless otherwise specified.
 
 =cut
 
-sub pages_per_sheet {
-    my $num = shift->{pages_per_sheet} || 4;
-    if ($num eq '2' or
-        $num eq '4' or
-        $num eq '8' or
-        $num eq '16' or
-        $num eq '32') {
-        return $num;
-    }
-    else {
-        die "bad number $num";
-    }
-}
+has pages_per_sheet => (is => 'ro',
+                        default => sub { 4 },
+                        isa => Enum[qw/2 4 8 16 32/]);
 
 sub _optimize_signature {
     my ($self, $sig, $total_pages) = @_;
@@ -255,7 +191,7 @@ sub _find_signature {
         }
         $i -= $ppsheet;
     }
-    warn "Looped ended with no result\n";
+    warn "_find_signature loop ended with no result\n";
 }
 
 
@@ -286,31 +222,34 @@ Returns the number of pages
 
 =cut
 
-sub dimensions {
+has dimensions => (is => 'lazy',
+                   isa => HashRef[Num]);
+
+sub _build_dimensions {
     my $self = shift;
-    unless ($self->{_dimensions}) {
-        my $pdf = $self->in_pdf_obj;
-        my ($x, $y, $w, $h) = $pdf->openpage(1)->get_mediabox; # use the first page
-        warn $self->file . "use x-y offset, cannot proceed safely" if ($x + $y);
-        die "Cannot retrieve paper dimensions" unless $w && $h;
-        $self->{_dimensions} = { w => sprintf('%.2f', $w),
-                                 h => sprintf('%.2f', $h) };
-    }
+    my $pdf = $self->in_pdf_obj;
+    my ($x, $y, $w, $h) = $pdf->openpage(1)->get_mediabox; # use the first page
+    warn $self->file . "use x-y offset, cannot proceed safely" if ($x + $y);
+    die "Cannot retrieve paper dimensions" unless $w && $h;
+    my %dimensions = (
+                      w => sprintf('%.2f', $w),
+                      h => sprintf('%.2f', $h),
+                     );
     # return a copy
-    return { %{$self->{_dimensions}} };
+    return \%dimensions;
 }
 
-sub total_pages {
+has total_pages => (is => 'lazy',
+                    isa => Int);
+
+sub _build_total_pages {
     my $self = shift;
-    unless ($self->{_total_orig_pages}) {
-        my $pdf = $self->in_pdf_obj;
-        my $count = 0;
-        while ($pdf->openpage($count + 1)) {
-            $count++;
-        }
-        $self->{_total_orig_pages} = $count;
+    my $pdf = $self->in_pdf_obj;
+    my $count = 0;
+    while ($pdf->openpage($count + 1)) {
+        $count++;
     }
-    return $self->{_total_orig_pages};
+    return $count;
 }
 
 sub orig_width {
@@ -333,14 +272,21 @@ Internal usage. The PDF::API2 object used as output.
 
 =cut
 
-sub in_pdf_obj {
+has in_pdf_obj => (is => 'lazy',
+                   isa => Maybe[Object]);
+
+has _in_pdf_object_is_open => (is => 'rw', isa => Bool);
+
+sub _build_in_pdf_obj {
     my $self = shift;
-    unless ($self->{_input_pdf_obj}) {
+    my $input;
+    if ($self->file) {
+        print "Building in_pdf_obj\n" if DEBUG;
         my ($basename, $path, $suff) = fileparse($self->file, qr{\.pdf}i);
         my $tmpfile = File::Spec->catfile($self->_tmp_dir,
                                           $basename . $suff);
         copy($self->file, $tmpfile) or die "copy to $tmpfile failed $!";
-        my $input;
+
         eval {
             $input = PDF::API2->open($tmpfile);
         };
@@ -354,17 +300,26 @@ sub in_pdf_obj {
             $src->output($tmpfile_copy);
             undef $src;
             $input = PDF::API2->open($tmpfile_copy);
+            print "$tmpfile_copy built\n" if DEBUG;
         }
-        die "Missing input" unless $input;
-        $self->{_input_pdf_obj} = $input;
+        else {
+            print "$tmpfile built\n" if DEBUG;
+        }
+        $self->_in_pdf_object_is_open(1);
     }
-    return $self->{_input_pdf_obj};
+    return $input;
 }
 
-sub out_pdf_obj {
+has out_pdf_obj => (is => 'lazy',
+                    isa => Maybe[Object]);
+
+has _out_pdf_object_is_open => (is => 'rw', isa => Bool);
+
+sub _build_out_pdf_obj {
     my $self = shift;
-    unless ($self->{_output_pdf_obj}) {
-        my $pdf = PDF::API2->new();
+    my $pdf;
+    if ($self->file) {
+        $pdf = PDF::API2->new();
         my ($basename, $path, $suff) = fileparse($self->file, qr{\.pdf}i);
         $pdf->info(
                    Creator => 'PDF::Imposition',
@@ -373,9 +328,9 @@ sub out_pdf_obj {
                    CreationDate => $self->_orig_file_timestamp,
                    ModDate => $self->_now_timestamp,
                   );
-        $self->{_output_pdf_obj} = $pdf;
+        $self->_out_pdf_object_is_open(1);
     }
-    return $self->{_output_pdf_obj};
+    return $pdf;
 }
 
 =head3 get_imported_page($pagenumber)
@@ -403,11 +358,28 @@ the internal objects.
 
 sub impose {
     my $self = shift;
-    my $out = $self->_do_impose;
-    $self->in_pdf_obj->end;
+    my $out = $self->_outfilename;
+    $self->_do_impose;
+    $self->out_pdf_obj->saveas($out);
     $self->out_pdf_obj->end;
+    $self->_out_pdf_object_is_open(0);
+    $self->in_pdf_obj->end;
+    $self->_in_pdf_object_is_open(0);
+    $self->outfile($out);
     return $out;
 }
+
+sub _outfilename {
+    my $self = shift;
+    my $out = $self->outfile;
+    unless ($out) {
+        my ($name, $path, $suffix) = fileparse($self->file, qr{\.pdf}i);
+        die $self->file . " has a suffix not recognized" unless $suffix;
+        $out = File::Spec->catfile($path, $name . $self->suffix . $suffix);
+    }
+    return $out;
+}
+
 
 sub _orig_file_timestamp {
     my $self = shift;
@@ -424,16 +396,6 @@ sub _format_timestamp {
     return POSIX::strftime(q{%Y%m%d%H%M%S+00'00'}, localtime($epoc));
 }
 
-sub DESTROY {
-    my $self = shift;
-    foreach my $f (qw/_output_pdf_obj _input_pdf_obj/) {
-        if ($self->{$f}) {
-            $self->{$f}->end;
-            delete $self->{$f};
-        }
-    }
-}
-
 =head3 computed_signature
 
 Return the actual number of signature, resolving 0 to the nearer
@@ -448,9 +410,9 @@ the signature handling.
 
 sub computed_signature {
     my $self = shift;
-    my $signature = $self->signature;
+    my $signature = $self->signature || 0;
     if ($signature) {
-        return $signature;
+        return $self->_optimize_signature($self->signature) + 0;
     }
     else {
         my $pages = $self->total_pages;
@@ -460,10 +422,20 @@ sub computed_signature {
 }
 
 sub total_output_pages {
-    my ($self, $pages, $signature) = @_;
-    $pages ||= $self->total_pages;
-    $signature ||= $self->computed_signature;
+    my $self = shift;
+    my $pages = $self->total_pages;
+    my $signature = $self->computed_signature;
     return $pages + (($signature - ($pages % $signature)) % $signature);
+}
+
+sub DEMOLISH {
+    my $self = shift;
+    if ($self->_out_pdf_object_is_open) {
+        $self->out_pdf_obj->end;
+    }
+    if ($self->_in_pdf_object_is_open) {
+        $self->in_pdf_obj->end;
+    }
 }
 
 1;
