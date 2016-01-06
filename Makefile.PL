@@ -19,6 +19,9 @@ WriteMakefile(
     PREREQ_PM => {
                   'CAM::PDF' => 1.58,
                   'PDF::API2' => 2.019,
+                  'Moo' => 0,
+                  'Type::Tiny' => 0,
+                  'namespace::clean' => 0,
                   # core modules
                   'File::Temp' => 0,
                   'File::Spec' => 0,
@@ -26,8 +29,6 @@ WriteMakefile(
                   'Module::Load' => 0,
                   'File::Basename' => 0,
                   'Pod::Usage' => 0,
-                  'Moo' => 0,
-                  'Type::Tiny' => 0,
                  },
     EXE_FILES => [ 'bin/pdf-impose.pl' ],
     dist  => { COMPRESS => 'gzip -9f', SUFFIX => 'gz', },

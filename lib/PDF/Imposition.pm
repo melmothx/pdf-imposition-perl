@@ -2,8 +2,11 @@ package PDF::Imposition;
 
 use strict;
 use warnings;
-
 use Module::Load;
+use Types::Standard qw/Enum Object/;
+use namespace::clean;
+
+use Moo;
 
 =head1 NAME
 
@@ -47,15 +50,7 @@ have all the pages with the same dimensions).
 
 =head2 new ( file => $file, schema => $schema, ...)
 
-The constructor doesn't return itself, but instead load, build and
-return a L<PDF::Imposition::Schema> subclass object, defaulting to
-L<PDF::Imposition::Schema2up> (which is assumed to be the most common
-scenario).
-
-If you prefer, you can load the right class yourself.
-
-To produce the imposed PDF you need to call C<impose> on the resulting
-object (see synopsis).
+Constructor.
 
 =head3 Options
 
@@ -143,17 +138,42 @@ The signature (integer multiple of four or range): C<2up> and C<2down> only.
 =cut
 
 
-sub new {
+sub BUILDARGS {
     my ($class, %options) = @_;
-    foreach my $k (keys %options) {
-        # clean the options from internals
-        delete $options{$k} if index($k, "_") == 0;
-    }
-    my $schema = delete $options{schema} || '2up'; #  default
+    my $schema = lc(delete $options{schema} || '2up'); #  default
     my $loadclass = __PACKAGE__ . '::Schema' . $schema;
+    my %our_options = map { $_ => delete $options{$_} } qw/paper
+                                                           paper_thickness/;
     load $loadclass;
-    return $loadclass->new(%options);
+    my $imposer = $loadclass->new(%options);
+    $our_options{imposer} = $imposer;
+    $our_options{schema} = $schema;
+    return \%our_options;
 }
+
+has schema => (is => 'ro',
+               default => '2up',
+               isa => Enum[__PACKAGE__->available_schemas]);
+
+has imposer => (is => 'ro',
+                required => 1,
+                handles => [qw/file outfile suffix
+                               cover
+                               signature
+                               computed_signature
+                               total_pages
+                               orig_width
+                               orig_height
+                               dimensions
+                               total_output_pages
+                              /],
+                isa => Object);
+
+sub impose {
+    my $self = shift;
+    return $self->imposer->impose;
+}
+
 
 =head2 available_schemas
 

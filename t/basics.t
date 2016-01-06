@@ -27,8 +27,8 @@ is_deeply($imposer->dimensions, {
                                 }, "dimension ok");
 
 
-my $seq = $imposer->page_sequence_for_booklet(24);
-$seq = $imposer->page_sequence_for_booklet(18,16);
+my $seq = $imposer->imposer->page_sequence_for_booklet(24);
+$seq = $imposer->imposer->page_sequence_for_booklet(18,16);
 format_seq($seq);
 ok (!$imposer->signature, "No signature set yet");
 $imposer->signature(4);
@@ -47,9 +47,9 @@ $imposer->signature(8);
 is($imposer->computed_signature, 8, "signature picked up");
 
 
-ok($imposer->in_pdf_obj, "in object ok");
-ok($imposer->out_pdf_obj, "out object ok");
-ok($imposer->_tmp_dir, "Temp directory is " . $imposer->_tmp_dir);
+ok($imposer->imposer->in_pdf_obj, "in object ok");
+ok($imposer->imposer->out_pdf_obj, "out object ok");
+ok($imposer->imposer->_tmp_dir, "Temp directory is " . $imposer->imposer->_tmp_dir);
 is($imposer->impose, $outsample);
 ok(-f $outsample, "output file $outsample created");
 unlink $outsample or die "Couldn't unlink $outsample $!";

@@ -131,7 +131,7 @@ ignore your option unless otherwise specified.
 
 has pages_per_sheet => (is => 'ro',
                         default => sub { 4 },
-                        isa => Enum[qw/2 4 8 16 32/]);
+                        isa => Enum[qw/1 2 4 8 16 32/]);
 
 sub _optimize_signature {
     my ($self, $sig, $total_pages) = @_;
@@ -140,6 +140,7 @@ sub _optimize_signature {
     }
     return 0 unless $sig;
     my $ppsheet = $self->pages_per_sheet or die;
+    print "# pages per sheet is $ppsheet\n" if DEBUG;
     if ($sig =~ m/^[0-9]+$/s) {
         die "Signature must be a multiple of $ppsheet" if $sig % $ppsheet;
         return $sig;
