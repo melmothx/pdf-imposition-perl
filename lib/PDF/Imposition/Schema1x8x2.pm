@@ -126,6 +126,19 @@ sub _compose_eight {
 
 }
 
+=head1 INTERNALS
+
+=head2 pages_per_sheet
+
+Returns 16
+
+=head2 cropmarks_options
+
+Set inner to false and force signature to 16.
+
+=cut
+
+
 sub pages_per_sheet { 16 }
 
 sub cropmarks_options {

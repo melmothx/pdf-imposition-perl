@@ -71,6 +71,19 @@ sub _do_impose {
     }
 }
 
+=head1 INTERNALS
+
+=head2 pages_per_sheet
+
+Returns 4
+
+=head2 cropmarks_options
+
+Set outer to false and force signature to 4.
+
+=cut
+
+
 sub cropmarks_options {
     my %options = (
                    top => 1,

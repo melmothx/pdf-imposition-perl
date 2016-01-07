@@ -413,6 +413,13 @@ sub total_output_pages {
     return $pages + (($signature - ($pages % $signature)) % $signature);
 }
 
+=head3 cropmarks_options
+
+By default, cropmarks are centered and twoside is true.
+
+=cut
+
+
 sub cropmarks_options {
     my %options = (
                    top => 1,

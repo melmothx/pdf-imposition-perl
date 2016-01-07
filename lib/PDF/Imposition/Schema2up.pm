@@ -211,6 +211,15 @@ sub _do_impose {
     }
 }
 
+=head1 INTERNALS
+
+=head2 cropmarks_options
+
+Set inner to false.
+
+=cut
+
+
 sub cropmarks_options {
     my %options = (
                    top => 1,

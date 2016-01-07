@@ -33,7 +33,8 @@ foreach my $schema (@schemas) {
                                            schema => $schema,
                                            signature => '40-80',
                                            cover => 1,
-                                           outfile => $outfile
+                                           outfile => $outfile,
+                                           cromarks => 'a4',
                                           );
         $imposer->impose;
         memory_cycle_ok($imposer, "No memory cycles found for $schema $testfile");

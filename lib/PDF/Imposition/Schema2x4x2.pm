@@ -107,6 +107,19 @@ sub _compose_quadruple {
     $gfx->formimage($chunk, $self->orig_width, 0) if $chunk;
 }
 
+=head1 INTERNALS
+
+=head2 pages_per_sheet
+
+Returns 8
+
+=head2 cropmarks_options
+
+Set inner to false and force signature to 16.
+
+=cut
+
+
 sub cropmarks_options {
     my %options = (
                    top => 1,

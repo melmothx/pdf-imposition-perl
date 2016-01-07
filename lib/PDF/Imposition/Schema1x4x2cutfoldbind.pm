@@ -60,6 +60,22 @@ sub pages_per_sheet { 8 }
 
 sub signature { 8 }
 
+=head1 INTERNALS
+
+=head2 signature
+
+Returns 8.
+
+=head2 pages_per_sheet
+
+Returns 8.
+
+=head2 cropmarks_options
+
+Set inner to false and force the signature to 4 for cropmarks purposes.
+
+=cut
+
 sub cropmarks_options {
     my %options = (
                    top => 1,
