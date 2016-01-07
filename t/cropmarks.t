@@ -41,25 +41,30 @@ my $pdf = catfile($outputdir, 'sample.pdf');
 }
 
 my %enabled = (
-               '1x1'              => 1,
-               '2up'              => 1,
-               '2down'            => 1,
-               '2side'            => 1,
-               '2x4x2'            => 1,
-               '1x4x2cutfoldbind' => 1,
-               '4up'              => 1,
-               '1repeat2side'     => 1,
-               '1repeat2top'      => 1,
-               '1repeat4'         => 1,
-               'ea4x4'            => 1,
-               '1x8x2'            => 1,
+               '1x1'              => { cover => 1 },
+               '2up'              => { cover => 1 },
+               '2down'            => { cover => 1 },
+               '2side'            => {},
+               '2x4x2'            => {},
+               '1x4x2cutfoldbind' => { cover => 1 },
+               '4up'              => { cover => 1},
+               '1repeat2side'     => {},
+               '1repeat2top'      => {},
+               '1repeat4'         => {},
+               'ea4x4'            => {},
+               '1x8x2'            => {},
               );
 
 foreach my $schema (@schemas) {
     foreach my $cover (0..1) {
       SKIP: {
+            my $spec = $enabled{$schema};
             skip "$schema " . ($cover ? "with cover" : "")
-              . " test disabled", 2 unless $enabled{$schema};
+              . " test disabled", 2 unless $spec;
+
+            skip "$schema doesn't need cover testing", 2
+              if $cover && !$spec->{cover};
+
             my $out = catfile($outputdir, $schema . ($cover ? '-cover' : '')
                               . '-cropmarks.pdf');
             unlink $out if $out;
