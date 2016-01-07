@@ -3,8 +3,17 @@ package PDF::Imposition;
 use strict;
 use warnings;
 use Module::Load;
-use Types::Standard qw/Enum Object/;
+use Types::Standard qw/Enum Object Maybe Str/;
+use File::Temp;
+use File::Copy;
+use File::Spec;
+use File::Basename;
+use Data::Dumper;
 use namespace::clean;
+
+use constant {
+    DEBUG => $ENV{AMW_DEBUG},
+};
 
 use Moo;
 
@@ -14,11 +23,11 @@ PDF::Imposition - Perl module to manage the PDF imposition
 
 =head1 VERSION
 
-Version 0.16
+Version 0.20
 
 =cut
 
-our $VERSION = '0.16';
+our $VERSION = '0.20';
 
 
 =head1 SYNOPSIS
@@ -191,9 +200,97 @@ has imposer => (is => 'ro',
                               /],
                 isa => Object);
 
+has paper => (is => 'ro',
+              isa => Maybe[Str]);
+
+has paper_thickness => (is => 'ro',
+                        isa => Maybe[Str]);
+
 sub impose {
     my $self = shift;
-    return $self->imposer->impose;
+
+    # no cropmarks required
+    unless ($self->paper) {
+        return $self->imposer->impose;
+    }
+
+    my $input = $self->file;
+    my $basename = basename($input);
+    my $tmpdir = File::Temp->newdir(CLEANUP => !DEBUG);
+    my $crop_output = File::Spec->catfile($tmpdir, $basename);
+    print "# cropping output in $crop_output\n" if DEBUG;
+
+    # doesn't exist yet. This will die if we try to open the file
+    # before the preprocessing is done.
+
+    # classes that supports the cover options need to normalized the pdf first,
+    # and pass the exact number of the signature.
+
+    if ($self->schema ne '1x1' and $self->imposer->can('cover')) {
+        require PDF::Imposition::Schema1x1;
+        my $normalized = File::Spec->catfile($tmpdir, '1x1.pdf');
+        my %args = (
+                    file => $input,
+                    signature => $self->signature,
+                    cover => $self->cover,
+                    outfile => $normalized,
+                    pages_per_sheet => $self->imposer->pages_per_sheet,
+                   );
+        my $pre = PDF::Imposition::Schema1x1->new(%args);
+        $pre->impose;
+        print "preprocessor: " . Dumper($pre) if DEBUG;
+        unless ($normalized eq $crop_output) {
+            copy($normalized, $crop_output)
+              or die "Cannot copy $normalized to $crop_output $!";
+        }
+        $self->_add_cropmarks($crop_output,
+                              signature => $pre->computed_signature);
+        # flip the input to normalized, but keep the basename
+        # now we have the input on normalized.
+    }
+    else {
+        copy($input, $crop_output);
+        $self->_add_cropmarks($crop_output);
+    }
+    die "pdf opened too early" if $self->imposer->_in_pdf_object_is_open;
+    # flip the input
+    print "Setting file to $crop_output\n" if DEBUG;
+    $self->file($crop_output);
+    my $outpdf = $self->imposer->impose;
+    # flip back to the original in any case.
+    print "Setting file to $input\n" if DEBUG;
+    $self->file($input);
+    return $outpdf;
+}
+
+sub _add_cropmarks {
+    # add cropmarks in place.
+    my ($self, $pdf, %options) = @_;
+    my $cropmark_paper = $self->paper;
+    return unless $cropmark_paper;
+    print "# Cropping $pdf in place\n" if DEBUG;
+    require PDF::Cropmarks;
+    my $tmpdir = File::Temp->newdir(CLEANUP => !DEBUG);
+    print "Using $tmpdir for cropping\n" if DEBUG;
+    my $original = File::Spec->catfile($tmpdir, "in.pdf");
+    my $processed = File::Spec->catfile($tmpdir, "out.pdf");
+    copy ($pdf, $original) or die "Cannot copy $pdf to $original $!";
+    my %args = (
+                input => $original,
+                output => $processed,
+                paper => $cropmark_paper,
+                $self->imposer->cropmarks_options,
+                %options,
+               );
+    if (my $thickness = $self->paper_thickness) {
+        $args{paper_thickness} = $thickness;
+    }
+    # process
+    my $cropper = PDF::Cropmarks->new(%args);
+    $cropper->add_cropmarks;
+    print "Cropper: " . Dumper($cropper) if DEBUG;
+    # copy back
+    copy($processed, $pdf);
 }
 
 

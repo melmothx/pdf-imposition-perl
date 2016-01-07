@@ -71,6 +71,19 @@ sub _do_impose {
     }
 }
 
+sub cropmarks_options {
+    my %options = (
+                   top => 1,
+                   bottom => 1,
+                   inner => 1,
+                   outer => 0,
+                   twoside => 1,
+                   signature => 4,
+                  );
+    return %options;
+}
+
+sub pages_per_sheet { 4 };
 
 1;
 

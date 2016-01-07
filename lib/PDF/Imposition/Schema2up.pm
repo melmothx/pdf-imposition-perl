@@ -211,6 +211,18 @@ sub _do_impose {
     }
 }
 
+sub cropmarks_options {
+    my %options = (
+                   top => 1,
+                   bottom => 1,
+                   inner => 0,
+                   outer => 1,
+                   twoside => 1,
+                  );
+    return %options;
+}
+
+
 1;
 
 =head1 SEE ALSO

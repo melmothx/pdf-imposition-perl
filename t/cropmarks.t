@@ -7,19 +7,19 @@ use PDF::Imposition;
 use PDF::API2;
 use File::Spec::Functions;
 use File::Temp;
+use File::Path qw/remove_tree make_path/;
 
 my @schemas = PDF::Imposition->available_schemas;
 
 plan tests => @schemas * 4;
 
-my $testdir = File::Temp->newdir(CLEANUP => 1);
 my $outputdir = catdir("t", "output", $PDF::Imposition::VERSION . '-cropmarks');
-unless (-d $outputdir) {
-    mkdir catdir("t", "output") unless -d catdir("t", "output");
-    mkdir $outputdir or die "Cannot create $outputdir $!";
+if (-d $outputdir) {
+    remove_tree($outputdir);
 }
+make_path($outputdir);
 
-my $pdf = catfile($testdir, 'input.pdf');
+my $pdf = catfile($outputdir, 'sample.pdf');
 {
     my $pdfobj = PDF::API2->new();
         # common settings
@@ -41,14 +41,10 @@ my $pdf = catfile($testdir, 'input.pdf');
 }
 
 my %enabled = (
-               '1x1' => {
-                        },
-               '2up' => {
-                        },
-               '2down' => {
-                          },
-               '2side' => {
-                          },
+               '1x1' => 1,
+               '2up' => 1,
+               '2down' => 1,
+               '2side' => 1,
               );
 
 foreach my $schema (@schemas) {
@@ -64,8 +60,8 @@ foreach my $schema (@schemas) {
                                                file => $pdf,
                                                outfile => $out,
                                                cover => $cover,
-                                               paper => "300pt:400pt",
-                                               paper_thickness => '5mm',
+                                               paper => "200pt:300pt",
+                                               paper_thickness => '1mm',
                                               );
             $imposer->impose;
             ok (-f $out, "$out produced");
@@ -73,3 +69,4 @@ foreach my $schema (@schemas) {
     }
 }
 
+unlink $pdf;

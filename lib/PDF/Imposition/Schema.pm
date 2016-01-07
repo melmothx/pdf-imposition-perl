@@ -104,13 +104,13 @@ has signature => (is => 'rw',
 =head3 pages_per_sheet
 
 The number of logical pages which fit on a sheet, recto-verso. Default
-to 4. it will always return 4. Subclasses usually change this and
-ignore your option unless otherwise specified.
+to 1. Subclasses usually change this and ignore your option unless
+otherwise specified.
 
 =cut
 
 has pages_per_sheet => (is => 'ro',
-                        default => sub { 4 },
+                        default => sub { 1 },
                         isa => Enum[qw/1 2 4 8 16 32/]);
 
 sub _optimize_signature {
@@ -411,6 +411,17 @@ sub total_output_pages {
     my $pages = $self->total_pages;
     my $signature = $self->computed_signature;
     return $pages + (($signature - ($pages % $signature)) % $signature);
+}
+
+sub cropmarks_options {
+    my %options = (
+                   top => 1,
+                   bottom => 1,
+                   inner => 1,
+                   outer => 1,
+                   twoside => 1,
+                  );
+    return %options;
 }
 
 sub DEMOLISH {
