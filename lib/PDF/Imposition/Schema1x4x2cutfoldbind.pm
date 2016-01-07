@@ -56,6 +56,23 @@ This schema supports the cover option.
 
 has cover => (is => 'rw', isa => Bool);
 
+sub pages_per_sheet { 8 }
+
+sub signature { 8 }
+
+sub cropmarks_options {
+    my %options = (
+                   top => 1,
+                   bottom => 1,
+                   inner => 0,
+                   outer => 1,
+                   twoside => 1,
+                   # for the purpose of the cropping, the signature is 4
+                   signature => 4,
+                  );
+    return %options;
+}
+
 sub _do_impose {
     my $self = shift;
     # set the mediabox doubling them

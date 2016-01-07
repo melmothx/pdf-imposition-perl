@@ -243,6 +243,8 @@ sub impose {
             copy($normalized, $crop_output)
               or die "Cannot copy $normalized to $crop_output $!";
         }
+        print "# Computed signature is " . $pre->computed_signature . "\n"
+          if DEBUG;
         $self->_add_cropmarks($crop_output,
                               signature => $pre->computed_signature);
         # flip the input to normalized, but keep the basename
@@ -279,8 +281,9 @@ sub _add_cropmarks {
                 input => $original,
                 output => $processed,
                 paper => $cropmark_paper,
-                $self->imposer->cropmarks_options,
                 %options,
+                # these have precedence!
+                $self->imposer->cropmarks_options,
                );
     if (my $thickness = $self->paper_thickness) {
         $args{paper_thickness} = $thickness;

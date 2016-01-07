@@ -25,7 +25,7 @@ my $pdf = catfile($outputdir, 'sample.pdf');
         # common settings
     $pdfobj->mediabox(80, 120);
     my $font = $pdfobj->corefont('Helvetica-Bold');
-    for my $p (1..13) {
+    for my $p (1..29) {
         my $page = $pdfobj->page();
         my $text = $page->text();
         $text->font($font, 20);
@@ -41,16 +41,19 @@ my $pdf = catfile($outputdir, 'sample.pdf');
 }
 
 my %enabled = (
-               '1x1' => 1,
-               '2up' => 1,
-               '2down' => 1,
-               '2side' => 1,
+               '1x1'              => 0,
+               '2up'              => 0,
+               '2down'            => 0,
+               '2side'            => 0,
+               '2x4x2'            => 0,
+               '1x4x2cutfoldbind' => 1,
               );
 
 foreach my $schema (@schemas) {
     foreach my $cover (0..1) {
       SKIP: {
-            skip "$schema test disabled", 2 unless $enabled{$schema};
+            skip "$schema " . ($cover ? "with cover" : "")
+              . " test disabled", 2 unless $enabled{$schema};
             my $out = catfile($outputdir, $schema . ($cover ? '-cover' : '')
                               . '-cropmarks.pdf');
             unlink $out if $out;
