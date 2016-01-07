@@ -41,6 +41,7 @@ unless (-d $testdir) {
 {
     my $pdffile = create_pdf("1x1-6", 1..6);
     my $imp = PDF::Imposition->new(file => $pdffile, signature => '0-20',
+                                   pages_per_sheet => 4,
                                    schema => '1x1',);
     $imp->cover(1);
     $imp->impose;
@@ -54,6 +55,7 @@ unless (-d $testdir) {
 {
     my $pdffile = create_pdf("1x1-6-nosig", 1..6);
     my $imp = PDF::Imposition->new(file => $pdffile, cover => 1,
+                                   pages_per_sheet => 4,
                                    schema => '1x1',
                                   );
     $imp->impose;
@@ -68,6 +70,7 @@ unless (-d $testdir) {
 {
     my $pdffile = create_pdf("1x1-8", 1..8);
     my $imp = PDF::Imposition->new(file => $pdffile, cover => 1,
+                                   pages_per_sheet => 4,
                                    schema => '1x1',
                                   );
     $imp->impose;
@@ -102,6 +105,7 @@ unless (-d $testdir) {
     my $imp = PDF::Imposition->new(file => $pdffile,
                                    cover => 1,
                                    schema => '1x1',
+                                   pages_per_sheet => 4,
                                   );
     $imp->impose;
     test_is_deeply($imp,
