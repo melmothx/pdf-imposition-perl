@@ -107,6 +107,20 @@ sub _compose_quadruple {
     $gfx->formimage($chunk, $self->orig_width, 0) if $chunk;
 }
 
+sub cropmarks_options {
+    my %options = (
+                   top => 1,
+                   bottom => 1,
+                   inner => 0,
+                   outer => 1,
+                   twoside => 1,
+                   signature => 16,
+                  );
+    return %options;
+}
+
+sub pages_per_sheet { 8 };
+
 1;
 
 =head1 SEE ALSO
