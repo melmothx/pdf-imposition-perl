@@ -41,12 +41,18 @@ my $pdf = catfile($outputdir, 'sample.pdf');
 }
 
 my %enabled = (
-               '1x1'              => 0,
-               '2up'              => 0,
-               '2down'            => 0,
-               '2side'            => 0,
-               '2x4x2'            => 0,
+               '1x1'              => 1,
+               '2up'              => 1,
+               '2down'            => 1,
+               '2side'            => 1,
+               '2x4x2'            => 1,
                '1x4x2cutfoldbind' => 1,
+               '4up'              => 1,
+               '1repeat2side'     => 1,
+               '1repeat2top'      => 1,
+               '1repeat4'         => 1,
+               'ea4x4'            => 1,
+               '1x8x2'            => 1,
               );
 
 foreach my $schema (@schemas) {
