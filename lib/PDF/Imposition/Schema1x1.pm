@@ -73,12 +73,15 @@ sub _do_impose {
     die "negative number of needed pages, this is a bug" if $needed < 0;
     my @sequence = (1 .. $total_pages);
     if ($needed) {
-        my $last = pop @sequence;
+        my $last;
+        if ($self->cover) {
+            $last = pop @sequence;
+        }
         while ($needed > 0) {
             push @sequence, undef;
             $needed--;
         }
-        push @sequence, $last;
+        push @sequence, $last if $last;
     }
     die "Something went off" if @sequence != $max_page;
     foreach my $pageno (@sequence) {
