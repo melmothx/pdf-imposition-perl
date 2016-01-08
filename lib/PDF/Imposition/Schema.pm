@@ -107,6 +107,10 @@ The number of logical pages which fit on a sheet, recto-verso. Default
 to 1. Subclasses usually change this and ignore your option unless
 otherwise specified.
 
+=head3 title
+
+The title to set in the PDF meta information. Defaults to the basename.
+
 =cut
 
 has pages_per_sheet => (is => 'ro',
@@ -296,16 +300,23 @@ has out_pdf_obj => (is => 'lazy',
 
 has _out_pdf_object_is_open => (is => 'rw', isa => Bool);
 
+has title => (is => 'ro',
+              isa => Maybe[Str]);
+
 sub _build_out_pdf_obj {
     my $self = shift;
     my $pdf;
     if ($self->file) {
         $pdf = PDF::API2->new();
-        my ($basename, $path, $suff) = fileparse($self->file, qr{\.pdf}i);
+        my $title = $self->title;
+        unless ($title) {
+            my ($basename, $path, $suff) = fileparse($self->file, qr{\.pdf}i);
+            $title = $basename;
+        }
         $pdf->info(
                    Creator => 'PDF::Imposition',
                    Producer => 'PDF::API2',
-                   Title => $basename,
+                   Title => $title || 'Untitled',
                    CreationDate => $self->_orig_file_timestamp,
                    ModDate => $self->_now_timestamp,
                   );

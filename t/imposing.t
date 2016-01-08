@@ -42,6 +42,7 @@ unless (-d $testdir) {
     my $pdffile = create_pdf("1x1-6", 1..6);
     my $imp = PDF::Imposition->new(file => $pdffile, signature => '0-20',
                                    pages_per_sheet => 4,
+                                   title => 'This one has a title',
                                    schema => '1x1',);
     $imp->cover(1);
     $imp->impose;

@@ -161,6 +161,10 @@ This feature is marked as B<experimental>.
 This option is passed to L<PDF::Cropmarks>. See the module
 documentation for the accepted values.
 
+=head3 title
+
+The title to set in the PDF meta information. Defaults to the basename.
+
 =head2 impose
 
 Main method which does the actual job. You have to call this to get
@@ -177,9 +181,16 @@ sub BUILDARGS {
     my %our_options = map { $_ => delete $options{$_} } qw/paper
                                                            paper_thickness/;
     load $loadclass;
+    unless ($options{title}) {
+        if ($options{file}) {
+            $options{title} = basename($options{file});
+        }
+    }
+
     my $imposer = $loadclass->new(%options);
     $our_options{imposer} = $imposer;
     $our_options{schema} = $schema;
+    $our_options{title} = $options{title};
     return \%our_options;
 }
 
@@ -207,6 +218,18 @@ has paper => (is => 'ro',
 has paper_thickness => (is => 'ro',
                         isa => Maybe[Str]);
 
+has title => (is => 'ro',
+              isa => Maybe[Str]);
+
+has job_name => (is => 'lazy',
+                 isa => Str);
+
+sub _build_job_name {
+    my $self = shift;
+    my $name = $self->title || basename($self->file);
+    return $name;
+}
+
 sub impose {
     my $self = shift;
 
@@ -216,9 +239,8 @@ sub impose {
     }
 
     my $input = $self->file;
-    my $basename = basename($input);
     my $tmpdir = File::Temp->newdir(CLEANUP => !DEBUG);
-    my $crop_output = File::Spec->catfile($tmpdir, $basename);
+    my $crop_output = File::Spec->catfile($tmpdir, 'with-crop-marks.pdf');
     print "# cropping output in $crop_output\n" if DEBUG;
 
     # doesn't exist yet. This will die if we try to open the file
@@ -229,21 +251,16 @@ sub impose {
 
     if ($self->schema ne '1x1' and $self->imposer->can('cover')) {
         require PDF::Imposition::Schema1x1;
-        my $normalized = File::Spec->catfile($tmpdir, '1x1.pdf');
         my %args = (
                     file => $input,
                     signature => $self->signature,
                     cover => $self->cover,
-                    outfile => $normalized,
+                    outfile => $crop_output,
                     pages_per_sheet => $self->imposer->pages_per_sheet,
                    );
         my $pre = PDF::Imposition::Schema1x1->new(%args);
         $pre->impose;
         print "preprocessor: " . Dumper($pre) if DEBUG;
-        unless ($normalized eq $crop_output) {
-            copy($normalized, $crop_output)
-              or die "Cannot copy $normalized to $crop_output $!";
-        }
         print "# Computed signature is " . $pre->computed_signature . "\n"
           if DEBUG;
         $self->_add_cropmarks($crop_output,
@@ -263,6 +280,7 @@ sub impose {
     # flip back to the original in any case.
     print "Setting file to $input\n" if DEBUG;
     $self->file($input);
+    print Dumper($self) if DEBUG;
     return $outpdf;
 }
 
@@ -279,6 +297,7 @@ sub _add_cropmarks {
     my $processed = File::Spec->catfile($tmpdir, "out.pdf");
     copy ($pdf, $original) or die "Cannot copy $pdf to $original $!";
     my %args = (
+                title => $self->job_name,
                 input => $original,
                 output => $processed,
                 paper => $cropmark_paper,
