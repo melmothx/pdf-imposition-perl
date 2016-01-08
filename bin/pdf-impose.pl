@@ -10,7 +10,7 @@ use PDF::Imposition;
 use Getopt::Long;
 use Pod::Usage;
 
-my ($signature, $help, $suffix, $cover);
+my ($signature, $help, $suffix, $cover, $title, $paper, $paper_thickness);
 
 my $schema = '2up';
 
@@ -20,6 +20,9 @@ my $opts = GetOptions (
                        'suffix=s' => \$suffix,
                        'cover' => \$cover,
                        'schema=s' => \$schema,
+                       'title=s' => \$title,
+                       'paper=s' => \$paper,
+                       'paper-thickness=s' => \$paper_thickness,
                       ) or die;
 my ($file, $outfile) = @ARGV;
 
@@ -32,30 +35,39 @@ if ($help) {
 
 die "Missing input" unless $file;
 die "$file is not a file" unless -f $file;
-my $imposer = PDF::Imposition->new(file => $file, schema => $schema);
-if ($signature) {
-    $imposer->signature($signature);
-}
+
+my %args = (
+            file => $file,
+            schema => $schema,
+           );
 
 if ($outfile) {
-    $imposer->outfile($outfile);
+    $args{outfile} = $outfile;
 }
 elsif ($suffix) {
-    $imposer->suffix('-' . $suffix);
+    unless ($suffix =~ m/\A-/) {
+        $suffix = '-' . $suffix;
+    }
+    $args{suffix} = $suffix;
 }
-
+if (defined $signature) {
+    $args{signature} = $signature;
+}
 if ($cover) {
-    $imposer->cover(1);
+    $args{cover} = 1;
+}
+if ($paper) {
+    $args{paper} = $paper;
+}
+if ($paper_thickness) {
+    $args{paper_thickness} = $paper_thickness;
 }
 
-print "Output on " . $imposer->outfile . "\n";
-if (-f $imposer->outfile) {
-    unlink $imposer->outfile or die "Couldn't remove old output! $!";
-}
+my $imposer = PDF::Imposition->new(%args);
+my $out = $imposer->impose;
 
-$imposer->impose;
 # and that's all
-print "Imposed PDF left in " . $imposer->outfile . "\n";
+print "Imposed PDF left in $out\n";
 
 =head1 NAME
 
@@ -103,8 +115,26 @@ defaults to 'imp'. The dash is automatically added, to avoid
 confusing it with options. If you want more control, pass the
 desired output file as second argument to the script.
 
+=item --paper <size>
+
+You can specify the dimension providing a (case insensitive) string
+with the paper name (2a, 2b, 36x36, 4a, 4b, a0, a1, a2, a3, a4, a5,
+a6, b0, b1, b2, b3, b4, b5, b6, broadsheet, executive, ledger, legal,
+letter, tabloid) or a string with width and height separated by a
+column, like C<11cm:200mm>. Supported units are mm, in, pt and cm.
+
+=item --paper-thickness
+
+Accept a measure, e.g. C<0.15mm>.
+
+This option is needed only for schemas which support cutting
+correction. Default to C<0.1mm>, which should be appropriate for the
+common paper 80g/m2. You can do the math measuring a stack height and
+dividing by the number of sheets.
+
 =item --help
-show this help
+
+Show this help and exit
 
 =back
 
