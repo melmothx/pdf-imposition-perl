@@ -154,6 +154,7 @@ C<2up>, you are going to get an a4 with 2 a6 with cropmarks.
 This option is passed to L<PDF::Cropmarks>. See the module
 documentation for the accepted values.
 
+This feature is marked as B<experimental>.
 
 =head3 paper_thickness
 
