@@ -8,7 +8,7 @@ use PDF::Imposition;
 use Data::Dumper;
 use Try::Tiny;
 
-plan tests => 15;
+plan tests => 16;
 
 my $pdfi = PDF::Imposition->new;
 
@@ -69,19 +69,29 @@ ok($err, "directory raises exception");
 $err = 0;
 $pdfi->file("README");
 try {
-    $pdfi->imposer->_outfilename;
+    $pdfi->imposer->output_filename;
 } catch {
     print $_;
     $err++;
 };
 ok($err, "not a pdf raises exception when calling ->outfile");
 
+{
+    my $imposer = PDF::Imposition->new(file => catfile(t => "sample2e.pdf"),
+                                       suffix => '-test',
+                                       paper => 'a3',
+                                       cover => 1);
+    $imposer->impose;
+    ok (-f catfile(t => "sample2e-test.pdf"), "output produced");
+    unlink catfile(t => "sample2e-test.pdf") or die $!;
+}
+
 
 sub testaccessors {
     my $pdf = shift;
     # print Dumper($pdf);
-    ok($pdf->imposer->_outfilename, "outfile ok") and $pdf->outfile;
-    is($pdf->imposer->_outfilename, catfile(t => "sample2e-test.pdf"), "sample2-test.pdf");
+    ok($pdf->imposer->output_filename, "outfile ok") and $pdf->outfile;
+    is($pdf->imposer->output_filename, catfile(t => "sample2e-test.pdf"), "sample2-test.pdf");
     is($pdf->cover, 1, "cover is true");
     is($pdf->suffix, "-test", "suffix exists");
     $pdf->outfile("test.pdf");
