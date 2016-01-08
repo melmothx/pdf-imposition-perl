@@ -62,6 +62,9 @@ if ($paper) {
 if ($paper_thickness) {
     $args{paper_thickness} = $paper_thickness;
 }
+if ($title) {
+    $args{title} = $title;
+}
 
 my $imposer = PDF::Imposition->new(%args);
 my $out = $imposer->impose;
@@ -131,6 +134,10 @@ This option is needed only for schemas which support cutting
 correction. Default to C<0.1mm>, which should be appropriate for the
 common paper 80g/m2. You can do the math measuring a stack height and
 dividing by the number of sheets.
+
+=item title
+
+Set the PDF Title metadata
 
 =item --help
 
