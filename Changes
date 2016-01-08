@@ -4,6 +4,7 @@ Revision history for perl module PDF-Imposition
 
  - New dependencies: Moo and Type::Tiny for better code layout
  - New options: paper and paper_thickness for crop marks
+ - New option: title (to set the PDF's Title metainfo)
 
 0.16 2016-01-02
 
