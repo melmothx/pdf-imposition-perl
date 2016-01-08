@@ -350,7 +350,7 @@ the internal objects.
 
 sub impose {
     my $self = shift;
-    my $out = $self->_outfilename;
+    my $out = $self->output_filename;
     $self->_do_impose;
     $self->out_pdf_obj->saveas($out);
     $self->out_pdf_obj->end;
@@ -361,7 +361,14 @@ sub impose {
     return $out;
 }
 
-sub _outfilename {
+=head3 output_filename
+
+If outfile is not provided, use the suffix provided and return the
+filename.
+
+=cut
+
+sub output_filename {
     my $self = shift;
     my $out = $self->outfile;
     unless ($out) {

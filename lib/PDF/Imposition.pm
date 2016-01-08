@@ -238,6 +238,11 @@ sub impose {
         return $self->imposer->impose;
     }
 
+    # if no outfile, fix it now.
+    unless ($self->imposer->outfile) {
+        $self->imposer->outfile($self->imposer->output_filename);
+    }
+
     my $input = $self->file;
     my $tmpdir = File::Temp->newdir(CLEANUP => !DEBUG);
     my $crop_output = File::Spec->catfile($tmpdir, 'with-crop-marks.pdf');
