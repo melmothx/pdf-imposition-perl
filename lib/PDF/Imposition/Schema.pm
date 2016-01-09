@@ -92,7 +92,7 @@ has suffix => (is => 'rw',
 The signature, must be a multiple of the C<pages_per_sheet> option
 (usually 4 or 8), or a range, like the string "20-100". If a range is
 selected, the signature is determined heuristically to minimize the
-white pages left on the last signature. The wider the range, the best
+white pages left on the last signature. The wider the range, the better
 the results.
 
 =cut
