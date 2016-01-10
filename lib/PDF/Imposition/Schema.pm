@@ -229,11 +229,7 @@ has total_pages => (is => 'lazy',
 
 sub _build_total_pages {
     my $self = shift;
-    my $pdf = $self->in_pdf_obj;
-    my $count = 0;
-    while ($pdf->openpage($count + 1)) {
-        $count++;
-    }
+    my $count = $self->in_pdf_obj->pages;
     return $count;
 }
 

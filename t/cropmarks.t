@@ -126,10 +126,7 @@ foreach my $schema (@schemas) {
       SKIP: {
             skip "$out not produced, pdf parsing not required", 1 unless -f $out;
             my $test_pdf = PDF::API2->open($out);
-            my $page_count = 0;
-            while ($test_pdf->openpage($page_count + 1)) {
-                $page_count++;
-            }
+            my $page_count = $test_pdf->pages;
             $test_pdf->end;
             is($page_count, $spec->{expected}, "Physical pages are $spec->{expected}");
         }
