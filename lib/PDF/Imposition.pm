@@ -190,9 +190,9 @@ sub BUILDARGS {
     my $imposer = $loadclass->new(%options);
     $our_options{imposer} = $imposer;
     $our_options{schema} = $schema;
-    $our_options{schema_class} = $loadclass;
+    $our_options{_schema_class} = $loadclass;
     $our_options{title} = $options{title};
-    $our_options{schema_options} = { %options };
+    $our_options{_schema_options} = { %options };
     return \%our_options;
 }
 
@@ -200,11 +200,11 @@ has schema => (is => 'ro',
                required => 1,
                isa => Enum[__PACKAGE__->available_schemas]);
 
-has schema_class => (is => 'ro',
+has _schema_class => (is => 'ro',
                      isa => Str,
                      required => 1);
 
-has schema_options => (is => 'ro',
+has _schema_options => (is => 'ro',
                        isa => HashRef,
                        required => 1);
 
@@ -244,7 +244,7 @@ sub impose {
     my $self = shift;
     my $tmpdir = File::Temp->newdir(CLEANUP => !DEBUG);
     if (my $cropmark_paper = $self->paper) {
-        my %imposer_options = %{ $self->schema_options };
+        my %imposer_options = %{ $self->_schema_options };
         # clone the parameter and set outfile and file
 
         $imposer_options{outfile} ||= $self->imposer->output_filename;
@@ -267,7 +267,7 @@ sub impose {
         print Dumper(\%crop_args) if DEBUG;
 
         # rebuild the imposer, which should free the memory as well
-        $self->_set_imposer($self->schema_class->new(%imposer_options));
+        $self->_set_imposer($self->_schema_class->new(%imposer_options));
 
         my $cropper = PDF::Cropmarks->new(%crop_args);
         $cropper->add_cropmarks;

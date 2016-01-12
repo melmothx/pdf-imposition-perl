@@ -111,7 +111,7 @@ sub cropmarks_options {
                    # no shifting need
                    twoside => 0,
                   );
-    if ($self->signature) {
+    if ($self->signature and $self->pages_per_sheet > 1) {
         $options{signature} = $self->computed_signature;
     }
     else {

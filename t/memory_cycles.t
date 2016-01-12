@@ -28,6 +28,7 @@ unless (-d $outdir) {
 foreach my $schema (@schemas) {
     foreach my $testfile (qw/pdfv16.pdf sample2e.pdf/) {
         foreach my $paper ('', 'a3') {
+            diag "Testing $schema against $testfile with paper $paper";
             my $pdf = catfile(t => $testfile);
             my $outfile = catfile($outdir, join('-', 'cycle',
                                                 ($paper ? $paper : 'nocropmarks'),
