@@ -61,7 +61,7 @@ Unsurprisingly, the input file, which must exist.
 =cut
 
 has file => (is => 'rw',
-             isa => sub { die "$_[0] is not a file " unless $_[0] && -f $_[0] });
+             isa => sub { die "$_[0] is not a pdf" unless $_[0] && $_[0] =~ m/\.pdf\z/i });
 
 has _tmp_dir => (is => 'ro',
                  default => sub { File::Temp->newdir(CLEANUP => 1); });
@@ -262,7 +262,8 @@ sub _build_in_pdf_obj {
     my $self = shift;
     my $input;
     if ($self->file) {
-        print "Building in_pdf_obj\n" if DEBUG;
+        die "File " . $self->file . " doesn't exists" unless -f $self->file;
+        print $self->file . ": building in_pdf_obj\n" if DEBUG;
         my ($basename, $path, $suff) = fileparse($self->file, qr{\.pdf}i);
         my $tmpfile = File::Spec->catfile($self->_tmp_dir,
                                           $basename . $suff);
@@ -303,6 +304,8 @@ sub _build_out_pdf_obj {
     my $self = shift;
     my $pdf;
     if ($self->file) {
+        die "File " . $self->file . " is not a file" unless -f $self->file;
+        print $self->file . ": building out_pdf_object\n" if DEBUG;
         $pdf = PDF::API2->new();
         my $title = $self->title;
         unless ($title) {
@@ -448,9 +451,11 @@ sub cropmarks_options {
 sub DEMOLISH {
     my $self = shift;
     if ($self->_out_pdf_object_is_open) {
+        print $self->file . ": closing outpdf object\n" if DEBUG;
         $self->out_pdf_obj->end;
     }
     if ($self->_in_pdf_object_is_open) {
+        print $self->file . ": closing inpdf object\n" if DEBUG;
         $self->in_pdf_obj->end;
     }
 }

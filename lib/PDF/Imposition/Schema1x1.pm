@@ -93,4 +93,32 @@ sub _do_impose {
     }
 }
 
+=head1 INTERNALS
+
+=head2 cropmarks_options
+
+Disable signature.
+
+=cut
+
+sub cropmarks_options {
+    my $self = shift;
+    my %options = (
+                   top => 1,
+                   bottom => 1,
+                   inner => 1,
+                   outer => 1,
+                   # no shifting need
+                   twoside => 0,
+                  );
+    if ($self->signature) {
+        $options{signature} = $self->computed_signature;
+    }
+    else {
+        $options{signature} = 0;
+    }
+
+    return %options;
+}
+
 1;

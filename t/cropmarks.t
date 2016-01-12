@@ -47,14 +47,15 @@ sub create_pdf {
 my %enabled = (
                '1x1'              => { cover => 1,
                                        pages => 5,
-                                       expected => 5,
+                                       signature => 8,
+                                       expected => 8,
                                      },
                '2up'              => { cover => 1,
                                        pages => 9,
                                        expected => 6,
                                      },
                '2down'            => { cover => 1,
-                                       pages => 9,,
+                                       pages => 9,
                                        expected => 6,
                                      },
                '2side'            => { pages => 5,
@@ -113,6 +114,7 @@ foreach my $schema (@schemas) {
                                                cover => $cover,
                                                paper => "400pt:500pt",
                                                paper_thickness => '1mm',
+                                               ($spec->{signature} ? (signature => $spec->{signature}) : ()),
                                               );
             $imposer->impose;
             ok (-f $out, "$out produced");

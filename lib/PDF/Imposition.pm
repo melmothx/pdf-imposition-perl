@@ -3,7 +3,7 @@ package PDF::Imposition;
 use strict;
 use warnings;
 use Module::Load;
-use Types::Standard qw/Enum Object Maybe Str/;
+use Types::Standard qw/Enum Object Maybe Str HashRef/;
 use File::Temp;
 use File::Copy;
 use File::Spec;
@@ -190,15 +190,25 @@ sub BUILDARGS {
     my $imposer = $loadclass->new(%options);
     $our_options{imposer} = $imposer;
     $our_options{schema} = $schema;
+    $our_options{schema_class} = $loadclass;
     $our_options{title} = $options{title};
+    $our_options{schema_options} = { %options };
     return \%our_options;
 }
 
 has schema => (is => 'ro',
-               default => '2up',
+               required => 1,
                isa => Enum[__PACKAGE__->available_schemas]);
 
-has imposer => (is => 'ro',
+has schema_class => (is => 'ro',
+                     isa => Str,
+                     required => 1);
+
+has schema_options => (is => 'ro',
+                       isa => HashRef,
+                       required => 1);
+
+has imposer => (is => 'rwp',
                 required => 1,
                 handles => [qw/file outfile suffix
                                cover
@@ -232,95 +242,41 @@ sub _build_job_name {
 
 sub impose {
     my $self = shift;
-
-    # no cropmarks required
-    unless ($self->paper) {
-        return $self->imposer->impose;
-    }
-
-    # if no outfile, fix it now.
-    unless ($self->imposer->outfile) {
-        $self->imposer->outfile($self->imposer->output_filename);
-    }
-
-    my $input = $self->file;
     my $tmpdir = File::Temp->newdir(CLEANUP => !DEBUG);
-    my $crop_output = File::Spec->catfile($tmpdir, 'with-crop-marks.pdf');
-    print "# cropping output in $crop_output\n" if DEBUG;
+    if (my $cropmark_paper = $self->paper) {
+        my %imposer_options = %{ $self->schema_options };
+        # clone the parameter and set outfile and file
 
-    # doesn't exist yet. This will die if we try to open the file
-    # before the preprocessing is done.
+        $imposer_options{outfile} ||= $self->imposer->output_filename;
+        my $crop_output = $imposer_options{file} = File::Spec->catfile($tmpdir, 'with-crop-marks.pdf');
 
-    # classes that supports the cover options need to normalized the pdf first,
-    # and pass the exact number of the signature.
+        # pass it to cropmarks
+        require PDF::Cropmarks;
+        my %crop_args = (
+                         title => $self->job_name,
+                         input => $self->file,
+                         output => $crop_output,
+                         paper => $cropmark_paper,
+                         cover => $imposer_options{cover},
+                         signature => $self->imposer->computed_signature,
+                         $self->imposer->cropmarks_options,
+                        );
+        if (my $thickness = $self->paper_thickness) {
+            $crop_args{paper_thickness} = $thickness;
+        }
+        print Dumper(\%crop_args) if DEBUG;
 
-    if ($self->schema ne '1x1' and $self->imposer->can('cover')) {
-        require PDF::Imposition::Schema1x1;
-        my %args = (
-                    file => $input,
-                    signature => $self->signature,
-                    cover => $self->cover,
-                    outfile => $crop_output,
-                    pages_per_sheet => $self->imposer->pages_per_sheet,
-                   );
-        my $pre = PDF::Imposition::Schema1x1->new(%args);
-        $pre->impose;
-        print "preprocessor: " . Dumper($pre) if DEBUG;
-        print "# Computed signature is " . $pre->computed_signature . "\n"
-          if DEBUG;
-        $self->_add_cropmarks($crop_output,
-                              signature => $pre->computed_signature);
-        # flip the input to normalized, but keep the basename
-        # now we have the input on normalized.
+        # rebuild the imposer, which should free the memory as well
+        $self->_set_imposer($self->schema_class->new(%imposer_options));
+
+        my $cropper = PDF::Cropmarks->new(%crop_args);
+        $cropper->add_cropmarks;
+        print "# cropping output in $crop_output\n" if DEBUG;
+        print Dumper($self->imposer) if DEBUG;
     }
-    else {
-        copy($input, $crop_output);
-        $self->_add_cropmarks($crop_output);
-    }
-    die "pdf opened too early" if $self->imposer->_in_pdf_object_is_open;
-    # flip the input
-    print "Setting file to $crop_output\n" if DEBUG;
-    $self->file($crop_output);
-    my $outpdf = $self->imposer->impose;
-    # flip back to the original in any case.
-    print "Setting file to $input\n" if DEBUG;
-    $self->file($input);
-    print Dumper($self) if DEBUG;
-    return $outpdf;
+    # in any case impose
+    return $self->imposer->impose;
 }
-
-sub _add_cropmarks {
-    # add cropmarks in place.
-    my ($self, $pdf, %options) = @_;
-    my $cropmark_paper = $self->paper;
-    return unless $cropmark_paper;
-    print "# Cropping $pdf in place\n" if DEBUG;
-    require PDF::Cropmarks;
-    my $tmpdir = File::Temp->newdir(CLEANUP => !DEBUG);
-    print "Using $tmpdir for cropping\n" if DEBUG;
-    my $original = File::Spec->catfile($tmpdir, "in.pdf");
-    my $processed = File::Spec->catfile($tmpdir, "out.pdf");
-    copy ($pdf, $original) or die "Cannot copy $pdf to $original $!";
-    my %args = (
-                title => $self->job_name,
-                input => $original,
-                output => $processed,
-                paper => $cropmark_paper,
-                %options,
-                # these have precedence!
-                $self->imposer->cropmarks_options,
-               );
-    if (my $thickness = $self->paper_thickness) {
-        $args{paper_thickness} = $thickness;
-    }
-    # process
-    my $cropper = PDF::Cropmarks->new(%args);
-    $cropper->add_cropmarks;
-    print "Cropper: " . Dumper($cropper) if DEBUG;
-    # copy back
-    copy($processed, $pdf);
-}
-
 
 =head2 available_schemas
 

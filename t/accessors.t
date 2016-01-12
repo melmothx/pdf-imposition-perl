@@ -42,7 +42,7 @@ try {
     $pdfi->file("xxx");
 } catch {
     $err++;
-    print $_;
+    diag $_;
 };
 ok($err, "non existent file raises exception");
 
@@ -51,7 +51,7 @@ try {
     $pdfi->file("");
 } catch {
     $err++;
-    print $_;
+    diag $_;
 };
 ok($err, "empty string raises exception");
 
@@ -61,20 +61,21 @@ try {
     $pdfi->file("t");
 } catch {
     $err++;
-    print $_;
+    diag $_;
 };
 ok($err, "directory raises exception");
 
 
 $err = 0;
-$pdfi->file("README");
+$pdfi->file("README.pdf");
+
 try {
-    $pdfi->imposer->output_filename;
+    $pdfi->impose;
 } catch {
-    print $_;
+    diag $_;
     $err++;
 };
-ok($err, "not a pdf raises exception when calling ->outfile");
+ok($err, "not a pdf raises exception when calling ->impose");
 
 {
     my $imposer = PDF::Imposition->new(file => catfile(t => "sample2e.pdf"),

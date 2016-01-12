@@ -75,6 +75,7 @@ sub cropmarks_options {
                    outer => 1,
                    # no shifting need
                    twoside => 0,
+                   signature => 0,
                   );
     return %options;
 }
