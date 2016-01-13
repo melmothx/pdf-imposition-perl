@@ -60,6 +60,10 @@ Unsurprisingly, the input file, which must exist.
 
 =cut
 
+has _version => (is => 'ro',
+                 isa => Str,
+                 default => sub { 'PDF::Imposition' });
+
 has file => (is => 'rw',
              isa => sub { die "$_[0] is not a pdf" unless $_[0] && $_[0] =~ m/\.pdf\z/i });
 
@@ -313,7 +317,7 @@ sub _build_out_pdf_obj {
             $title = $basename;
         }
         $pdf->info(
-                   Creator => 'PDF::Imposition',
+                   Creator => $self->_version,
                    Producer => 'PDF::API2',
                    Title => $title || 'Untitled',
                    CreationDate => $self->_orig_file_timestamp,

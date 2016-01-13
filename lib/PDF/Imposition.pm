@@ -9,6 +9,7 @@ use File::Copy;
 use File::Spec;
 use File::Basename;
 use Data::Dumper;
+use PDF::Cropmarks;
 use namespace::clean;
 
 use constant {
@@ -28,6 +29,11 @@ Version 0.21
 =cut
 
 our $VERSION = '0.21';
+
+sub version {
+    return "PDF::Imposition $VERSION PDF::Cropmarks "
+      . $PDF::Cropmarks::VERSION;
+}
 
 
 =head1 SYNOPSIS
@@ -170,13 +176,16 @@ The title to set in the PDF meta information. Defaults to the basename.
 Main method which does the actual job. You have to call this to get
 your file. It returns the output filename.
 
+=head2 version
+
+Return the version string.
+
 =cut
-
-
 
 sub BUILDARGS {
     my ($class, %options) = @_;
     my $schema = lc(delete $options{schema} || '2up'); #  default
+    $options{_version} = $class->version;
     my $loadclass = __PACKAGE__ . '::Schema' . $schema;
     my %our_options = map { $_ => delete $options{$_} } qw/paper
                                                            paper_thickness/;
@@ -251,7 +260,6 @@ sub impose {
         my $crop_output = $imposer_options{file} = File::Spec->catfile($tmpdir, 'with-crop-marks.pdf');
 
         # pass it to cropmarks
-        require PDF::Cropmarks;
         my %crop_args = (
                          title => $self->job_name,
                          input => $self->file,

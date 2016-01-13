@@ -10,7 +10,7 @@ use PDF::Imposition;
 use Getopt::Long;
 use Pod::Usage;
 
-my ($signature, $help, $suffix, $cover, $title, $paper, $paper_thickness);
+my ($signature, $help, $suffix, $cover, $title, $paper, $paper_thickness, $version);
 
 my $schema = '2up';
 
@@ -23,6 +23,7 @@ my $opts = GetOptions (
                        'title=s' => \$title,
                        'paper=s' => \$paper,
                        'paper-thickness=s' => \$paper_thickness,
+                       version => \$version,
                       ) or die;
 my ($file, $outfile) = @ARGV;
 
@@ -32,6 +33,10 @@ if ($help) {
     exit 2;
 }
 
+if ($version) {
+    print PDF::Imposition->version . "\n";
+    exit;
+}
 
 die "Missing input" unless $file;
 die "$file is not a file" unless -f $file;
@@ -142,6 +147,10 @@ Set the PDF Title metadata
 =item --help
 
 Show this help and exit
+
+=item --version
+
+Show the PDF::Imposition version
 
 =back
 
