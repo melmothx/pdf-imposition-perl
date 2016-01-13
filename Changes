@@ -1,5 +1,10 @@
 Revision history for perl module PDF-Imposition
 
+0.21 2016-01-13
+
+ - Optimization: avoid the creation of a pdf just to get the cover
+   right. This change should speed up things about 33%.
+
 0.20 2016-01-08
 
  - New dependencies: Moo and Type::Tiny for better code layout
