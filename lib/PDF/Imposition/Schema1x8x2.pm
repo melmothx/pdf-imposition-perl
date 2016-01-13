@@ -23,9 +23,9 @@ The output pdf will be left in C<< $imposer->output >>
 
 Fixed signature size of 16 pages, printed recto-verso on a single sheet.
 
-Typical usage: print A5 on A3, or A6 on A4, then fold trice, first
-along the y axys, then the x axys and finally the y axys again. You
-need to trim the top and right margins before binding.
+Typical usage: print A6 on A3, then fold trice, first along the y
+axys, then the x axys and finally the y axys again. You need to trim
+the top and right margins before binding.
 
 Not suitable for home-printing because the spine is unstable unless
 done by a machine.
