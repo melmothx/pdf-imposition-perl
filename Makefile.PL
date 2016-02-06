@@ -21,7 +21,7 @@ WriteMakefile(
                   'PDF::API2' => 2.019,
                   'PDF::Cropmarks' => 0.07,
                   'Moo' => 0,
-                  'Type::Tiny' => 0,
+                  'Type::Tiny' => 1,
                   'namespace::clean' => 0,
                   # core modules
                   'File::Temp' => 0,
