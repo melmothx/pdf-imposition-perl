@@ -11,7 +11,7 @@ with 'PDF::Imposition::Schema';
 
 =head1 NAME
 
-PDF::Imposition::Schema1x4x2cutfoldbind
+PDF::Imposition::Schema1x4x2cutfoldbind - 1x4x2cutfoldbind imposition schema
 
 =head1 SYNOPSIS
 
