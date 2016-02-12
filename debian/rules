@@ -1,4 +1,11 @@
 #!/usr/bin/make -f
+PACKAGE = $(shell dh_listpackages)
+TMP     = $(CURDIR)/debian/$(PACKAGE)
 
 %:
 	dh $@
+
+# fix shebang and remove the use 'lib' stuff
+override_dh_auto_install:
+	dh_auto_install
+	sed -i '1s,^#!.*perl,#!/usr/bin/perl,' $(TMP)/usr/bin/pdf-impose.pl
