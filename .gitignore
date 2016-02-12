@@ -20,3 +20,5 @@ PDF-Imposition-*.tar.gz
 t/tests/*
 t/output/*
 *.bak
+debian/files
+debian/libpdf-imposition-perl*
