@@ -1,0 +1,11 @@
+libpdf-imposition-perl (0.21-2) unstable; urgency=medium
+
+  * Updated package metadata
+
+ -- Marco Pessotto <melmothx@gmail.com>  Fri, 12 Feb 2016 17:55:57 +0100
+
+libpdf-imposition-perl (0.21-1) unstable; urgency=low
+
+  * Initial Release.
+
+ -- Marco <melmoth@universe.krase.net>  Fri, 12 Feb 2016 17:44:36 +0100

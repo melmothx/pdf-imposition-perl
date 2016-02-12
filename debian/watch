@@ -1,0 +1,2 @@
+version=3
+https://metacpan.org/release/PDF-Imposition   .*/PDF-Imposition-v?(\d[\d.-]*)\.(?:tar(?:\.gz|\.bz2)?|tgz|zip)$
