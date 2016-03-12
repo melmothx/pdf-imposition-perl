@@ -3,11 +3,10 @@ Section: perl
 Priority: optional
 Maintainer: Marco Pessotto <melmothx@gmail.com>
 Build-Depends: debhelper (>= 9)
-Build-Depends-Indep: libcam-pdf-perl (>= 1.58),
- libmoo-perl,
+Build-Depends-Indep: libmoo-perl,
  libnamespace-clean-perl,
- libpdf-api2-perl (>= 2.019),
- libpdf-cropmarks-perl (>= 0.07),
+ libpdf-api2-perl (>= 2.027),
+ libpdf-cropmarks-perl (>= 0.09),
  libtry-tiny-perl,
  libtype-tiny-perl,
  libcam-pdf-perl (>= 1.58),
@@ -19,11 +18,10 @@ Homepage: https://metacpan.org/release/PDF-Imposition
 Package: libpdf-imposition-perl
 Architecture: all
 Depends: ${misc:Depends}, ${perl:Depends},
- libcam-pdf-perl (>= 1.58),
  libmoo-perl,
  libnamespace-clean-perl,
- libpdf-api2-perl (>= 2.019),
- libpdf-cropmarks-perl (>= 0.07),
+ libpdf-api2-perl (>= 2.027),
+ libpdf-cropmarks-perl (>= 0.09),
  libtype-tiny-perl
 Description: Perl module to manage the PDF imposition
  This module is meant to simplify the so-called imposition, i.e.,

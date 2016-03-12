@@ -4,7 +4,6 @@ use warnings;
 
 use File::Basename qw/fileparse/;
 use File::Spec;
-use CAM::PDF;
 use PDF::API2;
 use File::Temp ();
 use File::Copy;
@@ -190,10 +189,6 @@ sub _find_signature {
 The following methods are used internally but documented for schema's
 authors.
 
-L<CAM::PDF> is used to get the properties, and L<PDF::API2> to arrange
-the pages. L<CAM::PDF> is also used to convert PDF 1.6-1.5 to PDF
-v1.4, which it's the only version L<PDF::API2> understands.
-
 =head3 dimensions
 
 Returns an hashref with the original pdf dimensions in points.
@@ -277,16 +272,7 @@ sub _build_in_pdf_obj {
             $input = PDF::API2->open($tmpfile);
         };
         if ($@) {
-            # dirty trick to get a pdf 1.4
-            my $src = CAM::PDF->new($tmpfile);
-            my $tmpfile_copy =
-              File::Spec->catfile($self->_tmp_dir,
-                                  $basename . "-v14" . $suff);
-            $src->cleansave();
-            $src->output($tmpfile_copy);
-            undef $src;
-            $input = PDF::API2->open($tmpfile_copy);
-            print "$tmpfile_copy built\n" if DEBUG;
+            die "Couldn't open $tmpfile $@";
         }
         else {
             print "$tmpfile built\n" if DEBUG;

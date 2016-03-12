@@ -1,5 +1,10 @@
 Revision history for perl module PDF-Imposition
 
+0.22 2016-03-12
+
+ - Removed dependency on CAM::PDF
+ - Bumped dependency to PDF::API2 with xref support (RT#112461)
+
 0.21 2016-01-13
 
  - Optimization: avoid the creation of a pdf just to get the cover

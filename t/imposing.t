@@ -9,12 +9,6 @@ use PDF::Imposition;
 use PDF::API2;
 use Data::Dumper;
 
-# unfortunately, CAM::PDF is not capable of extracting the text from
-# an imposed pdf, probably because of the nested pages, so they are
-# considered something else than text.
-
-# anyway, being that the tests are still useful in development
-# environment, let's shell out.
 my $pdftotext = system('pdftotext', '-v');
 my $skipex;
 my $testdir = File::Temp->newdir(CLEANUP => 1);

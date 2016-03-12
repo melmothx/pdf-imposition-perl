@@ -6,7 +6,6 @@ use Test::More;
 use File::Spec::Functions;
 use PDF::Imposition;
 use Data::Dumper;
-use CAM::PDF;
 use PDF::API2;
 
 plan tests => 17;

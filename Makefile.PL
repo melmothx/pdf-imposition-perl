@@ -17,9 +17,8 @@ WriteMakefile(
         'Try::Tiny' => 0,
     },
     PREREQ_PM => {
-                  'CAM::PDF' => 1.58,
-                  'PDF::API2' => 2.019,
-                  'PDF::Cropmarks' => 0.07,
+                  'PDF::API2' => 2.027,
+                  'PDF::Cropmarks' => 0.09,
                   'Moo' => 0,
                   'Type::Tiny' => 1,
                   'namespace::clean' => 0,

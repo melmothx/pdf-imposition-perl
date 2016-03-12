@@ -24,11 +24,11 @@ PDF::Imposition - Perl module to manage the PDF imposition
 
 =head1 VERSION
 
-Version 0.21
+Version 0.22
 
 =cut
 
-our $VERSION = '0.21';
+our $VERSION = '0.22';
 
 sub version {
     return "PDF::Imposition $VERSION PDF::Cropmarks "
