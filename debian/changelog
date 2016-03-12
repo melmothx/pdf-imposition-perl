@@ -1,3 +1,9 @@
+libpdf-imposition-perl (0.22-1) unstable; urgency=medium
+
+  * New release
+
+ -- Marco Pessotto <melmothx@gmail.com>  Sat, 12 Mar 2016 15:04:42 +0100
+
 libpdf-imposition-perl (0.21-3) unstable; urgency=medium
 
   * Fixed executable shebang
