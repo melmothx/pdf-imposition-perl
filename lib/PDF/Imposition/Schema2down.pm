@@ -47,8 +47,8 @@ sub _do_impose {
     my $seq = $self->page_sequence_for_booklet;
     foreach my $p (@$seq) {
         # loop over the pages
-        my $left = $p->[0];
-        my $right = $p->[1];
+        my $left = $self->get_imported_page($p->[0]);
+        my $right = $self->get_imported_page($p->[1]);
         my $page = $self->out_pdf_obj->page();
         my $gfx = $page->gfx();
         $gfx->transform (
@@ -56,14 +56,10 @@ sub _do_impose {
                           -rotate => 90
                          );
         if (defined $left) {
-            my $lpage = $self->out_pdf_obj
-              ->importPageIntoForm($self->in_pdf_obj, $left);
-            $gfx->formimage($lpage);
+            $gfx->formimage($left);
         }
         if (defined $right) {
-            my $rpage = $self->out_pdf_obj
-              ->importPageIntoForm($self->in_pdf_obj, $right);
-            $gfx->formimage($rpage, 0, 0 - $self->orig_height);
+            $gfx->formimage($right, 0, 0 - $self->orig_height);
         }
     }
 }
