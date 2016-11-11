@@ -1,3 +1,9 @@
+libpdf-imposition-perl (0.23-1) unstable; urgency=medium
+
+  * New release
+
+ -- Marco Pessotto <melmothx@gmail.com>  Fri, 11 Nov 2016 16:29:19 +0100
+
 libpdf-imposition-perl (0.22-1) unstable; urgency=medium
 
   * New release

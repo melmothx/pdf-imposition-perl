@@ -1,5 +1,9 @@
 Revision history for perl module PDF-Imposition
 
+0.23 2016-11-11
+
+ - Carry on the PDF metadata when processing the PDF
+
 0.22 2016-03-12
 
  - Removed dependency on CAM::PDF
