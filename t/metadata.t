@@ -5,7 +5,7 @@ use warnings;
 use PDF::API2;
 use File::Temp;
 use File::Spec;
-use Test::More tests => 1;
+use Test::More tests => 20;
 use Data::Dumper;
 use PDF::Imposition;
 
@@ -28,13 +28,17 @@ my %meta = (
     my $text = $page->text;
     $text->font($font, 20);
     $text->text_center('Baf');
-    $pdf->info(%meta);
+    $pdf->info(%meta,
+               Creator => 'Pippo',
+               ModDate => q{20161111161530+00'00},
+               CreationDate => q{20161111161530+00'00},
+              );
     $pdf->saveas($target);
 }
 {
     my $pdf = PDF::API2->open($target);
     my %got = $pdf->info;
-    delete $got{Producer};
+    check_volatile_meta(\%got);
     is_deeply(\%got, \%meta, "metadata ok");
     $pdf->end;
 }
@@ -45,7 +49,7 @@ my %meta = (
                          schema => "2up")->impose;
     my $pdf = PDF::API2->open($outfile);
     my %got = $pdf->info;
-    delete $got{Producer};
+    check_volatile_meta(\%got);
     is_deeply(\%got, \%meta, "metadata ok after imposing");
     $pdf->end;
 }
@@ -58,7 +62,7 @@ my %meta = (
                          schema => "2up")->impose;
     my $pdf = PDF::API2->open($outfile);
     my %got = $pdf->info;
-    delete $got{Producer};
+    check_volatile_meta(\%got);
     is_deeply(\%got, \%meta, "metadata ok after imposing with cropmarks");
     $pdf->end;
 }
@@ -71,8 +75,16 @@ my %meta = (
     $pdf->saveas($target);
     $pdf = PDF::API2->open($target);
     my %got = $pdf->info;
-    delete $got{Producer};
+    check_volatile_meta(\%got);
     is_deeply(\%got, \%meta, "metadata ok after modifying it in place");
     $pdf->end;
 }
 
+
+sub check_volatile_meta {
+    my $got = shift;
+    foreach my $meta (qw/Creator Producer ModDate CreationDate/) {
+        my $field = delete $got->{$meta};
+        ok $field, "Got $meta: $field";
+    }
+}

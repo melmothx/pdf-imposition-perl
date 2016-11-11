@@ -297,7 +297,13 @@ sub _build_out_pdf_obj {
         die "File " . $self->file . " is not a file" unless -f $self->file;
         print $self->file . ": building out_pdf_object\n" if DEBUG;
         $pdf = PDF::API2->new();
-        $pdf->info($self->in_pdf_obj->info);
+        my %info = (
+                    $self->in_pdf_obj->info,
+                    Creator => $self->_version,
+                    CreationDate => $self->_orig_file_timestamp,
+                    ModDate => $self->_now_timestamp,
+                   );
+        $pdf->info(%info);
         $self->_out_pdf_object_is_open(1);
     }
     return $pdf;
