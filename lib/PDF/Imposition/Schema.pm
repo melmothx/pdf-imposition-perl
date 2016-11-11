@@ -297,18 +297,7 @@ sub _build_out_pdf_obj {
         die "File " . $self->file . " is not a file" unless -f $self->file;
         print $self->file . ": building out_pdf_object\n" if DEBUG;
         $pdf = PDF::API2->new();
-        my $title = $self->title;
-        unless ($title) {
-            my ($basename, $path, $suff) = fileparse($self->file, qr{\.pdf}i);
-            $title = $basename;
-        }
-        $pdf->info(
-                   Creator => $self->_version,
-                   Producer => 'PDF::API2',
-                   Title => $title || 'Untitled',
-                   CreationDate => $self->_orig_file_timestamp,
-                   ModDate => $self->_now_timestamp,
-                  );
+        $pdf->info($self->in_pdf_obj->info);
         $self->_out_pdf_object_is_open(1);
     }
     return $pdf;

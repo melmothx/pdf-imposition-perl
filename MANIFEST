@@ -29,6 +29,7 @@ t/imposing.t
 t/leaks.t
 t/manifest.t
 t/memory_cycles.t
+t/metadata.t
 t/orig.lua
 t/pdf-v16.t
 t/pdfv16.pdf
