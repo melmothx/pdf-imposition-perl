@@ -18,7 +18,7 @@ WriteMakefile(
     },
     PREREQ_PM => {
                   'PDF::API2' => 2.027,
-                  'PDF::Cropmarks' => 0.09,
+                  'PDF::Cropmarks' => 0.11,
                   'Moo' => 0,
                   'Type::Tiny' => 1,
                   'namespace::clean' => 0,
