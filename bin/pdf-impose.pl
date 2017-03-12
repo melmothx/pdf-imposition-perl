@@ -10,7 +10,8 @@ use PDF::Imposition;
 use Getopt::Long;
 use Pod::Usage;
 
-my ($signature, $help, $suffix, $cover, $title, $paper, $paper_thickness, $version);
+my ($signature, $help, $suffix, $cover, $title, $paper, $paper_thickness, $version,
+    $font_size, $cropmark_length, $cropmark_offset);
 
 my $schema = '2up';
 
@@ -23,6 +24,9 @@ my $opts = GetOptions (
                        'title=s' => \$title,
                        'paper=s' => \$paper,
                        'paper-thickness=s' => \$paper_thickness,
+                       'font-size=s' => \$font_size,
+                       'cropmark-length=s' => \$cropmark_length,
+                       'cropmark-offset=s' => \$cropmark_offset,
                        version => \$version,
                       ) or die;
 my ($file, $outfile) = @ARGV;
@@ -70,7 +74,16 @@ if ($paper_thickness) {
 if ($title) {
     $args{title} = $title;
 }
-
+if ($font_size) {
+    $args{font_size} = $font_size;
+}
+if ($cropmark_length) {
+    $args{cropmark_length} = $cropmark_length;
+}
+if ($cropmark_offset) {
+    $args{cropmark_offset} = $cropmark_offset;
+}
+print "Using PDF::Imposition " . PDF::Imposition->version . "\n";
 my $imposer = PDF::Imposition->new(%args);
 my $out = $imposer->impose;
 
@@ -139,6 +152,20 @@ This option is needed only for schemas which support cutting
 correction. Default to C<0.1mm>, which should be appropriate for the
 common paper 80g/m2. You can do the math measuring a stack height and
 dividing by the number of sheets.
+
+=item --font-size 8pt
+
+The font size of the headers and footers with the job name, date, and
+page numbers. Defaults to 8pt.
+
+=item --cropmark-offset 1mm
+
+The distance from the logical page corner and the cropmark line.
+Defaults to 1mm.
+
+=item --cropmark-length 12mm
+
+Size of the cropmark lines. Defaults to 12mm.
 
 =item title
 

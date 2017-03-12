@@ -24,11 +24,11 @@ PDF::Imposition - Perl module to manage the PDF imposition
 
 =head1 VERSION
 
-Version 0.23
+Version 0.24
 
 =cut
 
-our $VERSION = '0.23';
+our $VERSION = '0.24';
 
 sub version {
     return "PDF::Imposition $VERSION PDF::Cropmarks "
@@ -160,16 +160,30 @@ C<2up>, you are going to get an a4 with 2 a6 with cropmarks.
 This option is passed to L<PDF::Cropmarks>. See the module
 documentation for the accepted values.
 
-This feature is marked as B<experimental>.
-
-=head3 paper_thickness
-
-This option is passed to L<PDF::Cropmarks>. See the module
-documentation for the accepted values.
-
 =head3 title
 
 The title to set in the PDF meta information. Defaults to the basename.
+
+=head2 Cropmarks options
+
+The following options are passed verbatim to L<PDF::Cropmarks>. See
+the module documentation for the meaning and accepted values.
+
+=head3 paper_thickness
+
+Defaults to C<0.1mm>
+
+=head3 font_size
+
+Defaults to C<8pt>
+
+=head3 cropmark_offset
+
+Defaults to C<1mm>
+
+=head3 cropmark_length
+
+Defaults to C<12mm>
 
 =head2 impose
 
@@ -187,8 +201,16 @@ sub BUILDARGS {
     my $schema = lc(delete $options{schema} || '2up'); #  default
     $options{_version} = $class->version;
     my $loadclass = __PACKAGE__ . '::Schema' . $schema;
-    my %our_options = map { $_ => delete $options{$_} } qw/paper
-                                                           paper_thickness/;
+    my %our_options;
+    foreach my $cropmark_opt (qw/paper
+                                 cropmark_offset
+                                 cropmark_length
+                                 font_size
+                                 paper_thickness/) {
+        if (exists $options{$cropmark_opt}) {
+            $our_options{$cropmark_opt} = $options{$cropmark_opt};
+        }
+    }
     load $loadclass;
     unless ($options{title}) {
         if ($options{file}) {
@@ -235,7 +257,20 @@ has paper => (is => 'ro',
               isa => Maybe[Str]);
 
 has paper_thickness => (is => 'ro',
-                        isa => Maybe[Str]);
+                        isa => Str,
+                        default => sub { '0.1mm' });
+
+has cropmark_offset => (is => 'ro',
+                        isa => Str,
+                        default => sub { '1mm' });
+
+has cropmark_length => (is => 'ro',
+                        isa => Str,
+                        default => sub { '12mm' });
+
+has font_size => (is => 'ro',
+                  isa => Str,
+                  default => sub { '8pt' });
 
 has title => (is => 'ro',
               isa => Maybe[Str]);
@@ -267,11 +302,12 @@ sub impose {
                          paper => $cropmark_paper,
                          cover => $imposer_options{cover},
                          signature => $self->imposer->computed_signature,
+                         paper_thickness => $self->paper_thickness,
+                         cropmark_offset => $self->cropmark_offset,
+                         cropmark_length => $self->cropmark_length,
+                         font_size => $self->font_size,
                          $self->imposer->cropmarks_options,
                         );
-        if (my $thickness = $self->paper_thickness) {
-            $crop_args{paper_thickness} = $thickness;
-        }
         print Dumper(\%crop_args) if DEBUG;
 
         # rebuild the imposer, which should free the memory as well

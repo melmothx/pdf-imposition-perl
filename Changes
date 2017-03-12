@@ -1,5 +1,11 @@
 Revision history for perl module PDF-Imposition
 
+0.24 2017-03-12
+
+ - Add supported options (in module and script) for PDF::Cropmarks
+   (font_size, cropmark_length, cropmark_offset) and set explicitely
+   the values, to avoid relying on the PDF::Cropmarks default values.
+
 0.23 2016-11-11
 
  - Carry on the PDF metadata when processing the PDF
