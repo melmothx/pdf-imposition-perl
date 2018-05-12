@@ -1,3 +1,9 @@
+libpdf-imposition-perl (0.25-1) unstable; urgency=medium
+
+  * New release
+
+ -- Marco Pessotto <melmothx@gmail.com>  Sat, 12 May 2018 18:00:45 +0200
+
 libpdf-imposition-perl (0.24-1) unstable; urgency=medium
 
   * New release
