@@ -126,6 +126,16 @@ sub pages_per_sheet { 8 };
 
 L<PDF::Imposition>
 
+=head1 LICENSE
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of either: the GNU General Public License as
+published by the Free Software Foundation; or the Artistic License.
+
+=head1 AUTHOR
+
+Daniel Drennan ElAwar <drennan@panix.com>
+
 =cut
 
 
