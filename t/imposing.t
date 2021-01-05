@@ -598,6 +598,20 @@ test_is_deeply($imp, [
                      ], "2x4x1", 18);
 
 
+$pdffile = create_pdf("duplex2up", 1..8);
+
+$imp = PDF::Imposition->new(file => $pdffile, schema => 'duplex2up');
+$imp->impose;
+
+test_is_deeply($imp, [
+                      [ 8, 1 ],
+                      [ 2, 7 ],
+                      [ 6, 3 ],
+                      [ 4, 5 ],
+                     ], "duplex2up", 8);
+
+
+
 
 sub create_pdf {
     my ($filename, @pages) = @_;
