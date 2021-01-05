@@ -1,6 +1,6 @@
 use strict;
 use warnings;
-use Test::More tests => 153;
+use Test::More tests => 157;
 use File::Temp;
 use File::Spec::Functions;
 use File::Basename;

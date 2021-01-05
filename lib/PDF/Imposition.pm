@@ -357,6 +357,10 @@ sub available_schemas {
 
 =item imposer
 
+=item DEBUG
+
+Constant picked from AMW_DEBUG environment.
+
 =back
 
 =head1 AUTHOR

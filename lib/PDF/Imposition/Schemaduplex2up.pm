@@ -55,7 +55,6 @@ sub _do_impose {
         my $page = $self->out_pdf_obj->page();
         my $gfx = $page->gfx();
         if ($count % 2) {
-            print "Rotating!\n";
             $gfx->transform (
                              -translate => [$self->orig_width  * 2, $self->orig_height ],
                              -rotate => 180,
